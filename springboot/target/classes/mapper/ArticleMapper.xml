@@ -1,0 +1,86 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ArticleMapper">
+
+    <select id="selectAll" resultType="com.example.entity.Article">
+        select article.*, category.name as categoryName, user.name as userName, user.avatar as userAvatar from `article`
+        left join category on article.category_id = category.id
+        left join user on article.user_id = user.id
+        <where>
+            <if test="title != null"> and title like concat('%', #{title}, '%')</if>
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="categoryId != null"> and category_id = #{categoryId}</if>
+            <if test="status != null"> and status = #{status}</if>
+        </where>
+        order by id desc
+    </select>
+
+    <delete id="deleteById">
+        delete from `article`
+        where id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="com.example.entity.Article" useGeneratedKeys="true">
+        insert into `article`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="title != null">title,</if>
+            <if test="content != null">content,</if>
+            <if test="time != null">time,</if>
+            <if test="img != null">img,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="views != null">views,</if>
+            <if test="status != null">status,</if>
+            <if test="reason != null">reason,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="title != null">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="time != null">#{time},</if>
+            <if test="img != null">#{img},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="views != null">#{views},</if>
+            <if test="status != null">#{status},</if>
+            <if test="reason != null">#{reason},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.example.entity.Article">
+        update `article`
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="time != null">
+                time = #{time},
+            </if>
+            <if test="img != null">
+                img = #{img},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="views != null">
+                views = #{views},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="reason != null">
+                reason = #{reason},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>
