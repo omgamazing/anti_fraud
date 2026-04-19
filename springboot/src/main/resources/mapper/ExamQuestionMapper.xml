@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ExamQuestionMapper">
+
+    <select id="selectByCondition" resultType="com.example.entity.ExamQuestion">
+        select * from exam_questions
+        <where>
+            <if test="title != null and title != ''">
+                and title like concat('%', #{title}, '%')
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+            <if test="category != null">
+                and category = #{category}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <delete id="deleteById">
+        delete from exam_questions where id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="com.example.entity.ExamQuestion" useGeneratedKeys="true">
+        insert into exam_questions
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="title != null">title,</if>
+            <if test="type != null">type,</if>
+            <if test="category != null">category,</if>
+            <if test="optionA != null">option_a,</if>
+            <if test="optionB != null">option_b,</if>
+            <if test="optionC != null">option_c,</if>
+            <if test="optionD != null">option_d,</if>
+            <if test="answer != null">answer,</if>
+            <if test="score != null">score,</if>
+            <if test="analysis != null">analysis,</if>
+            <if test="status != null">status,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="title != null">#{title},</if>
+            <if test="type != null">#{type},</if>
+            <if test="category != null">#{category},</if>
+            <if test="optionA != null">#{optionA},</if>
+            <if test="optionB != null">#{optionB},</if>
+            <if test="optionC != null">#{optionC},</if>
+            <if test="optionD != null">#{optionD},</if>
+            <if test="answer != null">#{answer},</if>
+            <if test="score != null">#{score},</if>
+            <if test="analysis != null">#{analysis},</if>
+            <if test="status != null">#{status},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.example.entity.ExamQuestion">
+        update exam_questions
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="optionA != null">option_a = #{optionA},</if>
+            <if test="optionB != null">option_b = #{optionB},</if>
+            <if test="optionC != null">option_c = #{optionC},</if>
+            <if test="optionD != null">option_d = #{optionD},</if>
+            <if test="answer != null">answer = #{answer},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="analysis != null">analysis = #{analysis},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

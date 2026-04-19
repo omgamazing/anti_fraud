@@ -43,7 +43,7 @@ public class ExamRecordService {
 // 3. 用 Map 组装详情，不加字段
         List<Map<String, Object>> detailsWithQuestion = new ArrayList<>();
         for (ExamRecordDetail detail : details) {
-            ExamQuestion question = examQuestionMapper.findById(detail.getQuestionId());
+            ExamQuestion question = examQuestionMapper.selectById(detail.getQuestionId());
 
             Map<String, Object> item = new HashMap<>();
             item.put("id", detail.getId());

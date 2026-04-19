@@ -19,9 +19,10 @@ const router = createRouter({
         { path: 'collect', meta: { name: '收藏信息' }, component: () => import('@/views/manager/Collect.vue'), },
         { path: 'comment', meta: { name: '评论信息' }, component: () => import('@/views/manager/Comment.vue'), },
         { path: 'activity', meta: { name: '活动信息' }, component: () => import('@/views/manager/Activity.vue'), },
-        { path: 'news', meta: { name: '反诈宣传' }, component: () => import('@/views/manager/News.vue'), },
+        { path: 'case', meta: { name: '案例管理' }, component: () => import('@/views/manager/Case.vue'), },
         { path: 'carousel', meta: { name: '轮播图信息' }, component: () => import('@/views/manager/Carousel.vue'), },
         { path: 'dashboard', meta: { name: '数据统计' }, component: () => import('@/views/manager/Dashboard.vue'), },
+        { path: 'exam', meta: { name: '考题管理' }, component: () => import('@/views/manager/Exam.vue'), },
       ]
     },
     {
@@ -36,8 +37,8 @@ const router = createRouter({
         { path: 'myComment', component: () => import('@/views/front/MyComment.vue'),  },
         { path: 'article', component: () => import('@/views/front/Article.vue'),  },
         { path: 'articleDetail', component: () => import('@/views/front/ArticleDetail.vue'),  },
-        { path: 'news', component: () => import('@/views/front/News.vue'),  },
-        { path: 'newsDetail', component: () => import('@/views/front/NewsDetail.vue'),  },
+        { path: 'case', component: () => import('@/views/front/Case.vue'),  },
+        { path: 'caseDetail', component: () => import('@/views/front/CaseDetail.vue'),  },
         { path: 'report', component: () => import('@/views/front/Report.vue'),  },
         { path: 'notice', component: () => import('@/views/front/Notice.vue'),  },
         { path: 'aichat', component: () => import('@/views/front/AiChat.vue'),  },

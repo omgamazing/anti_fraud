@@ -9,7 +9,7 @@
       <div class="front-header-center">
         <el-menu :default-active="router.currentRoute.value.path" router mode="horizontal">
           <el-menu-item index="/front/home">首页</el-menu-item>
-          <el-menu-item index="/front/news">反诈百科</el-menu-item>
+          <el-menu-item index="/front/case">反诈百科</el-menu-item>
           <el-menu-item index="/front/article">反诈论坛</el-menu-item>
           <el-menu-item index="/front/aichat">AI模拟</el-menu-item>
           <el-menu-item index="/front/examSelect">知识考核</el-menu-item>

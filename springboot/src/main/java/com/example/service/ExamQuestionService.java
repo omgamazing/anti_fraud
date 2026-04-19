@@ -1,11 +1,15 @@
 package com.example.service;
 
+import cn.hutool.core.date.DateUtil;
+import com.example.entity.Case;
 import com.example.entity.ExamQuestion;
 import com.example.entity.ExamRecord;
 import com.example.entity.ExamRecordDetail;
 import com.example.mapper.ExamQuestionMapper;
 import com.example.mapper.ExamRecordMapper;
 import com.example.mapper.ExamRecordDetailMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -186,4 +190,60 @@ public class ExamQuestionService {
         map.put(4, "综合测试");
         return map.getOrDefault(examType, "未知");
     }
+
+    /**
+     *
+     * 管理员——新增
+     */
+    public void add(ExamQuestion examQuestion) {
+        examQuestionMapper.insert(examQuestion);
+    }
+
+    /**
+     * 管理员——修改
+     */
+    public void updateById(ExamQuestion examQuestion) {
+        examQuestionMapper.updateById(examQuestion);
+    }
+
+    /**
+     * 管理员——单个删除
+     */
+    public void deleteById(Integer id) {
+        examQuestionMapper.deleteById(id);
+    }
+
+    /**
+     * 管理员——批量删除
+     */
+    public void deleteBatch(List<Integer> ids) {
+        for (Integer id : ids) {
+            examQuestionMapper.deleteById(id);
+        }
+    }
+
+    /**
+     * 单个查询
+     */
+    public ExamQuestion selectById(Integer id) {
+        return examQuestionMapper.selectById(id);
+    }
+
+    /**
+     * 分页查询
+     */
+    public PageInfo<ExamQuestion> selectPage(String title, Integer type, Integer category, Integer status,Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<ExamQuestion> list = examQuestionMapper.selectByCondition(title, type, category,status);
+        return PageInfo.of(list);
+    }
+
+
+
+
+    /*public List<ExamQuestion> selectAll(ExamQuestion examQuestion) {
+        return examQuestionMapper.selectAll(examQuestion);
+    }*/
+
+
 }

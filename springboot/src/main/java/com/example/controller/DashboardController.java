@@ -21,7 +21,7 @@ public class DashboardController {
     @Resource
     private ArticleService articleService;
     @Resource
-    private NewsService newsService;
+    private CaseService caseService;
    /* @Resource
     private ActivityService activityService;*/
     @Resource
@@ -35,7 +35,7 @@ public class DashboardController {
         Map<String, Integer> map = new HashMap<>();
         List<Article> articles = articleService.selectAll(new Article()).stream().filter(x -> "审核通过".equals(x.getStatus())).collect(Collectors.toList());
         map.put("article", articles.size());
-        map.put("news", newsService.selectAll(new News()).size());
+        map.put("news", caseService.selectAll(new Case()).size());
        // map.put("activity", activityService.selectAll(new Activity()).size());
         map.put("user", userService.selectAll(new User()).size());
         return Result.success(map);

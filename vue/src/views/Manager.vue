@@ -52,8 +52,8 @@
             <el-menu-item index="/manager/article">论坛帖子</el-menu-item>
             <el-menu-item index="/manager/activity">活动信息</el-menu-item>
 
-            <el-menu-item index="/manager/news">反诈宣传</el-menu-item>
-
+            <el-menu-item index="/manager/case">案例管理</el-menu-item>
+            <el-menu-item index="/manager/exam">题库管理</el-menu-item>
             <el-menu-item index="/manager/comment">评论信息</el-menu-item>
             <el-menu-item index="/manager/collect">收藏信息</el-menu-item>
             <el-menu-item index="/manager/notice">系统公告</el-menu-item>

@@ -1,8 +1,10 @@
 package com.example.controller;
 
 import com.example.common.Result;
+import com.example.entity.Case;
 import com.example.entity.ExamQuestion;
 import com.example.service.ExamQuestionService;
+import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,6 +71,81 @@ public class ExamQuestionController {
         Map<String, Object> result = examQuestionService.submitPaper(userId, examType, questions, userAnswers, duration);
         return Result.success(result);
     }
+    
+  
+    /**
+     * 管理员——新增
+     */
+    @PostMapping("/add")
+    public Result add(@RequestBody ExamQuestion examQuestion) {
+        examQuestionService.add(examQuestion);
+        return Result.success();
+    }
+
+    /**
+     * 管理员——修改
+     */
+    @PutMapping("/update")
+    public Result update(@RequestBody ExamQuestion examQuestion) {
+        examQuestionService.updateById(examQuestion);
+        return Result.success();
+    }
+
+    /**
+     * 管理员——单个删除
+     */
+    @DeleteMapping("/delete/{id}")
+    public Result delete(@PathVariable Integer id) {
+        examQuestionService.deleteById(id);
+        return Result.success();
+    }
+
+    /**
+     * 管理员——批量删除
+     */
+    @DeleteMapping("/delete/batch")
+    public Result delete(@RequestBody List<Integer> ids) {
+        examQuestionService.deleteBatch(ids);
+        return Result.success();
+    }
+
+    /**
+     * 管理员——单个查询
+     */
+    @GetMapping("/selectById/{id}")
+    public Result selectById(@PathVariable Integer id) {
+        ExamQuestion examQuestion = examQuestionService.selectById(id);
+        return Result.success(examQuestion);
+    }
+
+    /**
+     * 管理员——查询所有
+     */
+  /*  @GetMapping("/selectAll")
+    public Result selectAll(ExamQuestion examQuestion) {
+        List<ExamQuestion> list = examQuestionService.selectAll(examQuestion);
+        return Result.success(list);
+    }*/
+
+    /**
+     * 管理员——分页查询
+     */
+    @GetMapping("/selectPage")
+    public Result selectPage(@RequestParam(required = false) String title,
+                             @RequestParam(required = false) Integer type,
+                             @RequestParam(required = false) Integer category,
+                             @RequestParam(required = false) Integer status,
+                             @RequestParam(defaultValue = "1") Integer pageNum,
+                             @RequestParam(defaultValue = "10") Integer pageSize) {
+        PageInfo<ExamQuestion> pageInfo = examQuestionService.selectPage(title, type, category,status,pageNum, pageSize);
+        return Result.success(pageInfo);
+    }
+
+    /*@GetMapping("/selectTop4")
+    public Result selectTop4() {
+        List<Case> list = examQuestionService.selectTop4();
+        return Result.success(list);
+    }*/
 
 
 

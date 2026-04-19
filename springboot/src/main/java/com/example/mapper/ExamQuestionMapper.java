@@ -23,8 +23,28 @@ public interface ExamQuestionMapper {
                                                      @Param("type") Integer type,
                                                      @Param("limit") Integer limit);
 
-    // 新增：根据ID查询单个题目
+    /*// 新增：根据ID查询单个题目
     @Select("SELECT * FROM exam_questions WHERE id = #{id}")
-    ExamQuestion findById(@Param("id") Integer id);
+    ExamQuestion findById(@Param("id") Integer id);*/
+
+    int insert(ExamQuestion examQuestion);
+
+    void updateById(ExamQuestion examQuestion);
+
+    void deleteById(Integer id);
+
+    @Select("select * from exam_questions where id = #{id}")
+    ExamQuestion selectById(Integer id);
+
+    List<ExamQuestion> selectByCondition(@Param("title") String title,
+                                         @Param("type") Integer type,
+                                         @Param("category") Integer category,
+                                         @Param("status") Integer status);
+
+   /* List<ExamQuestion> selectAll(ExamQuestion examQuestion);*/
+
+   /* @Select("select * from exam_question order by id desc limit 4")
+    List<ExamQuestion> selectTop4();*/
+
 
 }
