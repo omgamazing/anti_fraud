@@ -18,7 +18,6 @@ const router = createRouter({
         { path: 'article', meta: { name: '论坛帖子' }, component: () => import('@/views/manager/Article.vue'), },
         { path: 'collect', meta: { name: '收藏信息' }, component: () => import('@/views/manager/Collect.vue'), },
         { path: 'comment', meta: { name: '评论信息' }, component: () => import('@/views/manager/Comment.vue'), },
-        { path: 'activity', meta: { name: '活动信息' }, component: () => import('@/views/manager/Activity.vue'), },
         { path: 'case', meta: { name: '案例管理' }, component: () => import('@/views/manager/Case.vue'), },
         { path: 'carousel', meta: { name: '轮播图信息' }, component: () => import('@/views/manager/Carousel.vue'), },
         { path: 'dashboard', meta: { name: '数据统计' }, component: () => import('@/views/manager/Dashboard.vue'), },

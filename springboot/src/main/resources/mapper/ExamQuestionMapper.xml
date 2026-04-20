@@ -39,7 +39,6 @@
             <if test="optionC != null">option_c,</if>
             <if test="optionD != null">option_d,</if>
             <if test="answer != null">answer,</if>
-            <if test="score != null">score,</if>
             <if test="analysis != null">analysis,</if>
             <if test="status != null">status,</if>
         </trim>
@@ -53,7 +52,6 @@
             <if test="optionC != null">#{optionC},</if>
             <if test="optionD != null">#{optionD},</if>
             <if test="answer != null">#{answer},</if>
-            <if test="score != null">#{score},</if>
             <if test="analysis != null">#{analysis},</if>
             <if test="status != null">#{status},</if>
         </trim>
@@ -70,7 +68,6 @@
             <if test="optionC != null">option_c = #{optionC},</if>
             <if test="optionD != null">option_d = #{optionD},</if>
             <if test="answer != null">answer = #{answer},</if>
-            <if test="score != null">score = #{score},</if>
             <if test="analysis != null">analysis = #{analysis},</if>
             <if test="status != null">status = #{status},</if>
         </set>

@@ -1,7 +1,7 @@
 <template>
-  <div class="exam-question-manage" style="margin-bottom: 5px">
+  <div class="card" style="margin-bottom: 5px">
     <!-- 搜索栏 -->
-    <div class="search-bar">
+    <div class="search-bar" >
       <el-input
         v-model="state.searchKeyword"
         prefix-icon="Search"
@@ -29,7 +29,7 @@
       <el-button type="warning" plain style="margin: 0 10px" @click="reset">重置</el-button>
     </div>
 
-    <div class="card" style="margin-bottom: 5px">
+    <div >
       <el-button type="primary" plain @click="handleAdd">新增</el-button>
       <el-button type="danger" plain @click="delBatch">批量删除</el-button>
     </div>
@@ -43,22 +43,21 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column type="index" label="序号" width="60" align="center" />
-      <el-table-column prop="title" label="题目" min-width="300" show-overflow-tooltip />
-      <el-table-column prop="type" label="题型" width="100" align="center">
+      <el-table-column prop="title" label="题目" min-width="250" show-overflow-tooltip />
+      <el-table-column prop="type" label="题型" width="120" align="center">
         <template #default="{ row }">
           <el-tag :type="getTypeTag(row.type)">
             {{ getTypeName(row.type) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="category" label="分类" width="120" align="center">
+      <el-table-column prop="category" label="分类" width="140" align="center">
         <template #default="{ row }">
           {{ getCategoryName(row.category) }}
         </template>
       </el-table-column>
 
-      <el-table-column prop="status" label="状态" width="80" align="center">
+      <el-table-column prop="status" label="状态" width="100" align="center">
         <template #default="{ row }">
           <el-switch
             v-model="row.status"
@@ -68,7 +67,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="150" align="center" fixed="right">
+      <el-table-column label="操作" width="150" align="center" >
         <template #default="{ row }">
           <el-button type="primary" circle :icon="Edit" @click="openEditDialog(row)"></el-button>
           <el-button type="danger" circle :icon="Delete" @click="handleDelete(row)"></el-button>
@@ -82,8 +81,7 @@
         v-model:current-page="state.pageNum"
         v-model:page-size="state.pageSize"
         :total="state.total"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
+        layout="total,prev, pager, next, jumper"
         @size-change="loadData"
         @current-change="loadData"
       />
@@ -103,7 +101,7 @@
         label-width="100px"
       >
         <el-form-item label="题型" prop="type">
-          <el-radio-group v-model="state.formData.type">
+          <el-radio-group v-model="state.formData.type" :disabled="state.isEdit" >
             <el-radio :value="1">单选题</el-radio>
             <el-radio :value="2">多选题</el-radio>
             <el-radio :value="3">判断题</el-radio>
@@ -214,10 +212,10 @@ const state = reactive({
 
   // 弹窗
   dialogVisible: false,
-  dialogTitle: '新增题目',
+  dialogTitle: '',
   isEdit: false,
 
-  // 表单数据
+  // 题库的数据结构
   formData: {
     id: null,
     type: 1,
@@ -234,14 +232,48 @@ const state = reactive({
 })
 
 const formRef = ref(null)
+// 自定义校验：正确答案格式
+const validateAnswer = (rule, value, callback) => {
+  // 判断题不校验格式
+  if (state.formData.type === 3) {
+    callback()
+    return
+  }
+
+  const answer = value?.toUpperCase().trim() || ''
+  const pattern = /^[A-D]+(?:,[A-D]+)*$/
+
+  if (!pattern.test(answer)) {
+    callback(new Error('只能输入A、B、C、D四个字母'))
+  } else {
+    state.formData.answer = answer
+    callback()
+  }
+}
+
+// 自定义校验：题目不能为空格
+const validateTitle = (rule, value, callback) => {
+  if (value && value.trim() === '') {
+    callback(new Error('题目不能为空格'))
+  } else {
+    callback()
+  }
+}
 
 // 表单校验规则
 const formRules = {
   type: [{ required: true, message: '请选择题型', trigger: 'change' }],
   category: [{ required: true, message: '请选择分类', trigger: 'change' }],
-  title: [{ required: true, message: '请输入题目', trigger: 'blur' }],
-  answer: [{ required: true, message: '请输入正确答案', trigger: 'blur' }],
+  title: [
+      { required: true, message: '请输入题目', trigger: 'blur' },
+      { validator: validateTitle, trigger: 'blur' }
+    ],
+    answer: [
+      { required: true, message: '请输入正确答案', trigger: 'blur' },
+      { validator: validateAnswer, trigger: 'blur' }
+    ]
 }
+
 
 // 辅助方法
 const getTypeName = (type) => {
@@ -260,8 +292,8 @@ const getCategoryName = (category) => {
 }
 
 const answerPlaceholder = computed(() => {
-  if (state.formData.type === 2) return '多选答案，如：AC'
-  if (state.formData.type === 3) return '请选择正确或错误'
+  if (state.formData.type === 2) return '请输入多个正确答案选项（如：AC）'
+  if (state.formData.type === 3) return '请选择正确答案'
   return '请输入正确答案选项（如：A）'
 })
 
@@ -315,14 +347,14 @@ const loadData = () => {
   })
 }
 
-// 新增
+// 新增，重置state.formData
 const handleAdd = () => {
   state.isEdit = false
   state.dialogTitle = '新增题目'
   Object.assign(state.formData, {
     id: null,
     type: 1,
-    category: 1,
+    category: '',
     title: '',
     optionA: '',
     optionB: '',
@@ -343,21 +375,55 @@ const openEditDialog = (row) => {
   state.dialogVisible = true
 }
 
+// 校验选项（单选/多选题专用）
+const validateOptions = () => {
+  // 判断题不需要校验选项
+  if (state.formData.type === 3) {
+    return true
+  }
+
+  const options = [
+    { key: 'optionA', name: '选项A' },
+    { key: 'optionB', name: '选项B' },
+    { key: 'optionC', name: '选项C' },
+    { key: 'optionD', name: '选项D' }
+  ]
+
+  for (let opt of options) {
+    if (!state.formData[opt.key] || !state.formData[opt.key].trim()) {
+      ElMessage.error(`${opt.name}不能为空`)
+      return false
+    }
+  }
+  return true
+}
+
 // 提交表单
-const submitForm = async () => {
+const submitForm = async () => { await formRef.value.validate()
+   // 1. formRules表单规则校验：判断基础字段是否填写
   try {
     await formRef.value.validate()
+  } catch (error) {
+    return
+  }
 
-    const url = state.isEdit ? '/exam/update' : '/exam/add'
-    const method = state.isEdit ? 'put' : 'post'
+  // 2. 选项校验（单选/多选），判定四个选项是否都有值
+  if (!validateOptions()) {
+    return
+  }
+
+  // 3. 提交表单
+   const url = state.isEdit ? '/exam/update' : '/exam/add'
+      const method = state.isEdit ? 'put' : 'post'
+  try {
     const res = await request[method](url, state.formData)
-
     if (res.code === '200') {
       ElMessage.success(state.isEdit ? '编辑成功' : '新增成功')
       state.dialogVisible = false
       loadData()
     } else {
       ElMessage.error(res.msg)
+      ElMessage.error("表单提交失败")
     }
   } catch (error) {
     console.log('表单校验失败', error)
@@ -378,11 +444,12 @@ const handleDelete = (row) => {
         loadData()
       } else {
         ElMessage.error(res.msg)
+        ElMessage.error('删除失败')
       }
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('请求异常')
     }
-  }).catch(() => {})
+  }).catch(() => {})  // 用户点"取消"，什么都不做，不需要提示
 }
 
 // 批量删除
@@ -405,28 +472,25 @@ const delBatch = () => {
         loadData()
       } else {
         ElMessage.error(res.msg)
+        ElMessage.error('删除失败')
       }
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('请求异常')
     }
   }).catch(() => {})
 }
 
 // 切换状态
-const toggleStatus = async (row) => {
-  try {
-    const res = await request.put('/exam/update', {
-      id: row.id,
-      status: row.status
+const toggleStatus = (row) => {
+  const originalStatus = row.status
+  request.put('/exam/update', { id: row.id, status: row.status })
+    .then(res => {
+      if (res.code !== '200') throw new Error()
     })
-    if (res.code !== '200') {
-      row.status = row.status === 1 ? 0 : 1
+    .catch(() => {
+      row.status = originalStatus === 1 ? 0 : 1
       ElMessage.error('更新状态失败')
-    }
-  } catch (error) {
-    row.status = row.status === 1 ? 0 : 1
-    ElMessage.error('更新状态失败')
-  }
+    })
 }
 
 // 初始化
@@ -436,24 +500,24 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.card {
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
 
 .search-bar {
   background: white;
-  padding: 10px;
+  padding: 10px 10px 15px 0px;  /* 上 右 下 左 */
+  margin-bottom: 5px;
   border-radius: 8px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
 }
 
-.card {
-  background: white;
-  padding: 15px 20px;
-  border-radius: 8px;
-}
-
 .pagination {
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
   justify-content: flex-end;
   background: white;
