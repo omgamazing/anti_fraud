@@ -5,11 +5,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
-@Component  // 添加@Component注解，让Spring管理
 // 这个类专门负责和DeepSeek AI对话
+// 添加@Component注解，让Spring管理
+@Component
 public class DeepSeekUtil {
 
-    // 在这里填你从 DeepSeek 平台拿到的 API_KEY
+    // DeepSeek 平台拿到的 API_KEY
     private static final String API_KEY = "sk-ec62563dd85b44419a0661cc121a0a25";
     private static final String URL = "https://api.deepseek.com/chat/completions";
 

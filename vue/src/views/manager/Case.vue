@@ -1,7 +1,16 @@
 <template>
   <div class="card" style="margin-bottom: 5px">
     <div class="search-bar" >
-      <el-input v-model="data.title" prefix-icon="Search" style="width: 240px; margin-right: 10px" placeholder="请输入宣传标题查询"></el-input>
+      <el-input
+       v-model="data.title"
+       prefix-icon="Search"
+       style="width: 240px;
+       margin-right: 10px"
+       placeholder="请输入案例"
+       clearable
+       @clear="load"
+       @keyup.enter="load"
+      ></el-input>
       <el-button type="info" plain @click="load">查询</el-button>
       <el-button type="warning" plain style="margin: 0 10px" @click="reset">重置</el-button>
     </div>
@@ -13,26 +22,33 @@
 
     <div>
       <el-table
-      stripe border
+      stripe
       :data="data.tableData"
       style="width: 100%; margin-top: 20px"
       @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55"  align="center"/>
-        <el-table-column prop="title" label="反诈标题" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="img" label="主图" width="100" align="center">
+        <el-table-column type="selection" width="50" />
+        <el-table-column prop="title" label="案例标题" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="img" label="图片" width="140" align="center">
           <template v-slot="scope" >
-            <el-image style="width: 40px; height: 40px; border-radius: 5px; display: inline-block" v-if="scope.row.img"
-                      :src="scope.row.img" :preview-src-list="[scope.row.img]" preview-teleported></el-image>
+            <el-image
+             style="width: 40px; height: 40px; border-radius: 5px; display: inline-block"
+             v-if="scope.row.img"
+             :src="scope.row.img"
+             :preview-src-list="[scope.row.img]"
+             preview-teleported
+             fit="cover"
+             ></el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="content" label="查看内容"  align="center">
+
+        <el-table-column prop="time" label="发布时间" width="200" align="center"/>
+        <el-table-column prop="views" label="浏览量" width="100"  align="center"/>
+        <el-table-column prop="content" label="详情" width="100" align="center">
           <template v-slot="scope">
-            <el-button type="primary" @click="viewInit(scope.row.content)">查看内容</el-button>
+            <el-button type="primary" link @click="viewInit(scope.row.content)">查看</el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="time" label="发布时间" align="center"/>
-        <el-table-column prop="views" label="浏览量"  width="80" align="center"/>
-        <el-table-column label="操作" width="140"  align="center">
+        <el-table-column label="操作" width="240"  align="center">
           <template v-slot="scope">
             <el-button type="primary" circle :icon="Edit" @click="handleEdit(scope.row)"></el-button>
             <el-button type="danger" circle :icon="Delete" @click="del(scope.row.id)"></el-button>

@@ -1,29 +1,52 @@
 <template>
-  <div>
-    <div class="card" style="margin-bottom: 5px">
-      <el-input v-model="data.name" prefix-icon="Search" style="width: 240px; margin-right: 10px" placeholder="请输入分类名称查询"></el-input>
+  <div class="card" style="margin-bottom: 5px">
+    <div class="search-bar">
+      <el-input
+      v-model="data.name"
+      prefix-icon="Search"
+      style="width: 240px;
+      margin-right: 10px"
+      placeholder="请输入分类名称"
+      clearable
+      @clear="load"
+      @keyup.enter="load"
+      ></el-input>
       <el-button type="info" plain @click="load">查询</el-button>
       <el-button type="warning" plain style="margin: 0 10px" @click="reset">重置</el-button>
     </div>
-    <div class="card" style="margin-bottom: 5px">
+    <div>
       <el-button type="primary" plain @click="handleAdd">新增</el-button>
       <el-button type="danger" plain @click="delBatch">批量删除</el-button>
     </div>
 
-    <div class="card" style="margin-bottom: 5px">
-      <el-table stripe :data="data.tableData" @selection-change="handleSelectionChange">
+    <div>
+      <el-table stripe
+      :data="data.tableData"
+      @selection-change="handleSelectionChange"
+      style="width: 100%; margin-top: 20px"
+      v-loading="loading"
+      >
         <el-table-column type="selection" width="55" />
         <el-table-column prop="name" label="分类名称" />
-        <el-table-column label="操作" width="100" fixed="right">
-          <template v-slot="scope">
+        <el-table-column label="操作" width="240"  align="center">
+          <template v-slot="scope" >
             <el-button type="primary" circle :icon="Edit" @click="handleEdit(scope.row)"></el-button>
             <el-button type="danger" circle :icon="Delete" @click="del(scope.row.id)"></el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <div class="card" v-if="data.total">
-      <el-pagination @current-change="load" background layout="prev, pager, next" :page-size="data.pageSize" v-model:current-page="data.pageNum" :total="data.total" />
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <el-pagination
+        v-model:current-page="data.pageNum"
+        v-model:page-size="data.pageSize"
+        :total="data.total"
+        layout="total,prev, pager, next, jumper"
+        @size-change="load"
+        @current-change="load"
+      />
     </div>
 
     <el-dialog title="分类信息" v-model="data.formVisible" width="40%" destroy-on-close>
@@ -163,3 +186,28 @@ const reset = () => {
 
 load()
 </script>
+
+<style scoped>
+.card {
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+.search-bar {
+  background: white;
+  padding: 10px 10px 15px 0px;  /* 上 右 下 左 */
+  margin-bottom: 5px;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+</style>

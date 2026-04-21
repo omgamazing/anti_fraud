@@ -5,7 +5,7 @@
       <el-input
         v-model="state.searchKeyword"
         prefix-icon="Search"
-        placeholder="请输入题目关键词"
+        placeholder="请输入题目"
         style="width: 250px; margin-right: 10px"
         clearable
         @clear="loadData"
@@ -36,13 +36,12 @@
 
     <el-table
       :data="state.tableData"
-      border
       stripe
       style="width: 100%; margin-top: 20px"
       v-loading="state.loading"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column type="selection" width="50"  />
       <el-table-column prop="title" label="题目" min-width="250" show-overflow-tooltip />
       <el-table-column prop="type" label="题型" width="120" align="center">
         <template #default="{ row }">
@@ -67,6 +66,12 @@
           />
         </template>
       </el-table-column>
+      <!-- 内容查看列 -->
+      <el-table-column prop="content" label="详情" width="100" align="center">
+        <template #default="{ row }">
+          <el-button type="primary" link @click="viewDetail(row)">查看</el-button>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="150" align="center" >
         <template #default="{ row }">
           <el-button type="primary" circle :icon="Edit" @click="openEditDialog(row)"></el-button>
@@ -87,7 +92,9 @@
       />
     </div>
 
-    <!-- 新增/编辑弹窗 -->
+
+
+    <!-- 查看/新增/编辑弹窗 -->
     <el-dialog
       v-model="state.dialogVisible"
       :title="state.dialogTitle"
@@ -101,7 +108,9 @@
         label-width="100px"
       >
         <el-form-item label="题型" prop="type">
-          <el-radio-group v-model="state.formData.type" :disabled="state.isEdit" >
+          <el-radio-group v-model="state.formData.type"
+          :disabled="state.mode === 'view' || state.mode === 'edit'"
+          >
             <el-radio :value="1">单选题</el-radio>
             <el-radio :value="2">多选题</el-radio>
             <el-radio :value="3">判断题</el-radio>
@@ -109,7 +118,7 @@
         </el-form-item>
 
         <el-form-item label="分类" prop="category">
-          <el-select v-model="state.formData.category" placeholder="请选择分类">
+          <el-select v-model="state.formData.category" :disabled="state.mode === 'view'" placeholder="请选择分类">
             <el-option label="反诈基础" :value="1" />
             <el-option label="信息网络安全" :value="2" />
             <el-option label="资金应急处置" :value="3" />
@@ -121,23 +130,25 @@
             v-model="state.formData.title"
             type="textarea"
             :rows="3"
+            :disabled="state.mode === 'view'"
             placeholder="请输入题目内容"
           />
         </el-form-item>
 
         <!-- 单选题/多选题选项 -->
         <template v-if="state.formData.type !== 3">
-          <el-form-item label="选项A" prop="optionA">
-            <el-input v-model="state.formData.optionA" placeholder="请输入选项A内容" />
-          </el-form-item>
-          <el-form-item label="选项B" prop="optionB">
-            <el-input v-model="state.formData.optionB" placeholder="请输入选项B内容" />
-          </el-form-item>
-          <el-form-item label="选项C" prop="optionC">
-            <el-input v-model="state.formData.optionC" placeholder="请输入选项C内容" />
-          </el-form-item>
-          <el-form-item label="选项D" prop="optionD">
-            <el-input v-model="state.formData.optionD" placeholder="请输入选项D内容" />
+          <el-form-item
+            v-for="opt in ['A', 'B', 'C', 'D']"
+            :key="opt"
+            :label="`选项${opt}`"
+            :prop="`option${opt}`"
+            required
+          >
+            <el-input
+              v-model="state.formData[`option${opt}`]"
+              :disabled="state.mode === 'view'"
+              :placeholder="`请输入选项${opt}内容`"
+            />
           </el-form-item>
         </template>
 
@@ -146,6 +157,7 @@
           <el-select
           v-if="state.formData.type === 3"
           v-model="state.formData.answer"
+          :disabled="state.mode === 'view'"
           placeholder="请选择正确答案" style="width: 100%">
            <el-option label="正确" :value="'√'">
              <el-icon><Check /></el-icon> 正确
@@ -159,10 +171,11 @@
           <el-input
           v-else
           v-model="state.formData.answer"
+          :disabled="state.mode === 'view'"
           :placeholder="answerPlaceholder"
           />
 
-          <div style="font-size: 12px; color: #999; margin-top: 5px">
+          <div v-if="state.mode !== 'view'" style="font-size: 12px; color: #999; margin-top: 5px">
             {{ answerTip }}
           </div>
 
@@ -175,14 +188,19 @@
             v-model="state.formData.analysis"
             type="textarea"
             :rows="3"
+            :disabled="state.mode === 'view'"
             placeholder="请输入答案解析"
           />
         </el-form-item>
       </el-form>
 
       <template #footer>
-        <el-button @click="state.dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">确定</el-button>
+        <el-button
+         @click="state.dialogVisible = false">{{ state.mode === 'view' ? '关闭' : '取消' }}</el-button>
+        <el-button
+         v-if="state.mode !== 'view'"
+         type="primary"
+         @click="submitForm">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -192,7 +210,7 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
-import { Edit, Delete } from '@element-plus/icons-vue'
+import { Edit, Delete} from '@element-plus/icons-vue'
 
 // 全部用 reactive 管理
 const state = reactive({
@@ -211,9 +229,12 @@ const state = reactive({
   searchStatus: '',
 
   // 弹窗
+  mode: 'add', // 'add' | 'edit' | 'view'
   dialogVisible: false,
-  dialogTitle: '',
-  isEdit: false,
+  //dialogTitle: '',
+  //isEdit: false,
+  detailVisible: false,
+  //detailData: {},
 
   // 题库的数据结构
   formData: {
@@ -347,10 +368,17 @@ const loadData = () => {
   })
 }
 
+
+const dialogTitle = computed(() => {
+  if (state.mode === 'add') return '新增题目'
+  if (state.mode === 'edit') return '编辑题目'
+  return '题目详情'
+})
 // 新增，重置state.formData
 const handleAdd = () => {
-  state.isEdit = false
-  state.dialogTitle = '新增题目'
+  state.mode = 'add'
+  //state.isEdit = false
+  //state.dialogTitle = '新增题目'
   Object.assign(state.formData, {
     id: null,
     type: 1,
@@ -369,8 +397,15 @@ const handleAdd = () => {
 
 // 编辑
 const openEditDialog = (row) => {
-  state.isEdit = true
-  state.dialogTitle = '编辑题目'
+  state.mode = 'edit'
+  //state.isEdit = true
+  Object.assign(state.formData, row)
+  state.dialogVisible = true
+}
+
+// 查看详情
+const viewDetail = (row) => {
+  state.mode = 'view'
   Object.assign(state.formData, row)
   state.dialogVisible = true
 }
@@ -400,25 +435,26 @@ const validateOptions = () => {
 
 // 提交表单
 const submitForm = async () => { await formRef.value.validate()
-   // 1. formRules表单规则校验：判断基础字段是否填写
+   if (state.mode === 'view') return
+
+  //formRules表单规则校验：判断基础字段是否填写
   try {
     await formRef.value.validate()
   } catch (error) {
     return
   }
 
-  // 2. 选项校验（单选/多选），判定四个选项是否都有值
-  if (!validateOptions()) {
-    return
-  }
+  //选项校验（单选/多选），判定四个选项是否都有值
+  if (!validateOptions()) return
 
-  // 3. 提交表单
-   const url = state.isEdit ? '/exam/update' : '/exam/add'
-      const method = state.isEdit ? 'put' : 'post'
+  //提交表单
+  const url = state.mode === 'edit' ? '/exam/update' : '/exam/add'
+  const method = state.mode === 'edit' ? 'put' : 'post'
+
   try {
     const res = await request[method](url, state.formData)
     if (res.code === '200') {
-      ElMessage.success(state.isEdit ? '编辑成功' : '新增成功')
+      ElMessage.success(state.mode === 'edit'? '编辑成功' : '新增成功')
       state.dialogVisible = false
       loadData()
     } else {
@@ -426,7 +462,7 @@ const submitForm = async () => { await formRef.value.validate()
       ElMessage.error("表单提交失败")
     }
   } catch (error) {
-    console.log('表单校验失败', error)
+    console.log('操作失败', error)
   }
 }
 

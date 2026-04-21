@@ -1,49 +1,118 @@
 <template>
-  <div>
-    <div class="card" style="margin-bottom: 5px">
-      <el-input v-model="data.title" prefix-icon="Search" style="width: 240px; margin-right: 10px" placeholder="请输入帖子标题查询"></el-input>
+  <div class="card" style="margin-bottom: 5px">
+    <div class="search-bar">
+      <el-input
+       v-model="data.title"
+       prefix-icon="Search"
+       style="width: 240px;
+       margin-right: 10px"
+       placeholder="请输入帖子名称"
+       clearable
+       @clear="load"
+       @keyup.enter="load"
+       ></el-input>
+       <el-select
+        v-model="data.status" placeholder="审核状态" style="width: 120px;margin-right: 10px"
+         clearable @change="load">
+         <el-option label="待审核" value="待审核" />
+         <el-option label="审核通过" value="审核通过" />
+         <el-option label="审核拒绝" value="审核拒绝" />
+       </el-select>
+       <!-- 反诈分类下拉框 -->
+       <el-select
+         v-model="data.categoryId"
+         placeholder="反诈分类"
+         style="width: 140px; margin-right: 10px"
+         clearable
+         @change="load"
+       >
+       <el-option
+         v-for="item in data.categoryList"
+         :key="item.id"
+         :label="item.name"
+         :value="item.id"
+       />
+       </el-select>
       <el-button type="info" plain @click="load">查询</el-button>
       <el-button type="warning" plain style="margin: 0 10px" @click="reset">重置</el-button>
-      <el-button type="danger" plain @click="delBatch">批量删除</el-button>
     </div>
 
-    <div class="card" style="margin-bottom: 5px">
-      <el-table stripe :data="data.tableData" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" />
+    <div >
+        <el-button type="danger" plain @click="delBatch">批量删除</el-button>
+    </div>
+
+
+    <div >
+      <el-table
+      stripe
+      :data="data.tableData"
+      style="width: 100%; margin-top: 20px"
+      @selection-change="handleSelectionChange"
+      v-loading="loading"
+      >
+        <el-table-column type="selection" width="50" />
         <el-table-column prop="title" label="帖子名称" width="200" show-overflow-tooltip />
-        <el-table-column prop="img" label="帖子主图">
-          <template v-slot="scope">
-            <el-image style="width: 40px; height: 40px; border-radius: 5px; display: block" v-if="scope.row.img"
-                      :src="scope.row.img" :preview-src-list="[scope.row.img]" preview-teleported></el-image>
+        <el-table-column prop="img" label="主图" width="80" align="center">
+          <template #default="{ row }">
+            <el-image
+              v-if="row.img"
+              style="width: 40px; height: 40px; border-radius: 5px; display: block; margin: 0 auto"
+              :src="row.img"
+              :preview-src-list="[row.img]"
+              preview-teleported
+              fit="cover"
+            />
           </template>
         </el-table-column>
-        <el-table-column prop="categoryName" label="反诈分类" />
-        <el-table-column prop="userName" label="用户名称" />
-        <el-table-column prop="content" label="查看内容">
-          <template v-slot="scope">
-            <el-button type="primary" @click="viewInit(scope.row.content)">查看内容</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column prop="time" label="发布时间" />
-        <el-table-column prop="views" label="浏览量" />
-        <el-table-column prop="status" label="审核状态">
+        <el-table-column prop="categoryName" label="反诈分类" align="center"/>
+        <el-table-column prop="userName" label="发布者" align="center"/>
+        <el-table-column prop="time" label="发布时间" width="140" align="center"/>
+        <el-table-column prop="views" label="浏览量" width="70" align="center"/>
+        <el-table-column prop="status" label="审核状态" width="100" align="center">
           <template v-slot="scope">
             <el-tag type="warning" v-if="scope.row.status === '待审核'">{{ scope.row.status }}</el-tag>
             <el-tag type="success" v-if="scope.row.status === '审核通过'">{{ scope.row.status }}</el-tag>
             <el-tag type="danger" v-if="scope.row.status === '审核拒绝'">{{ scope.row.status }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="reason" label="审核拒绝说明" />
-        <el-table-column label="操作" width="200" fixed="right">
-          <template v-slot="scope">
-            <el-button type="primary" @click="handleEdit(scope.row)">审核</el-button>
-            <el-button type="danger" circle :icon="Delete" @click="del(scope.row.id)"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+       <el-table-column prop="reason" label="审核说明" min-width="110" align="center" show-overflow-tooltip />
+
+
+
+     <!-- 内容查看列 -->
+     <el-table-column prop="content" label="详情" width="100" align="center">
+       <template #default="{ row }">
+         <el-button type="primary" link @click="viewInit(row.content)">查看</el-button>
+       </template>
+     </el-table-column>
+
+     <!-- 操作列（审核 + 删除） -->
+     <el-table-column label="操作" width="120" align="center" fixed="right">
+       <template #default="{ row }">
+         <el-button
+           v-if="row.status === '待审核'"
+           type="primary"
+           circle
+           :icon="Edit"
+           @click="handleEdit(row)"
+         />
+         <el-button type="danger" circle :icon="Delete" @click="del(row.id)" />
+       </template>
+     </el-table-column>
+    </el-table>
+
     </div>
-    <div class="card" v-if="data.total">
-      <el-pagination @current-change="load" background layout="prev, pager, next" :page-size="data.pageSize" v-model:current-page="data.pageNum" :total="data.total" />
+
+   <!-- 分页 -->
+    <div class="pagination">
+      <el-pagination
+       v-model:current-page="data.pageNum"
+       v-model:page-size="data.pageSize"
+       :total="data.total"
+       layout="total,prev, pager, next, jumper"
+       @size-change="load"
+       @current-change="load"
+      />
     </div>
 
     <el-dialog title="审核信息" v-model="data.formVisible" width="40%" destroy-on-close>
@@ -78,7 +147,7 @@
 import {reactive, ref} from "vue";
 import request from "@/utils/request.js";
 import {ElMessage, ElMessageBox} from "element-plus";
-import {Delete, Edit} from "@element-plus/icons-vue";
+import { View, Delete, Edit} from "@element-plus/icons-vue";
 
 
 const data = reactive({
@@ -86,9 +155,12 @@ const data = reactive({
   form: {},
   tableData: [],
   pageNum: 1,
-  pageSize: 5,
+  pageSize: 10,
   total: 0,
   title: null,
+  status:null,
+  categoryId: null,        // 选中的分类ID
+  categoryList: [],        // 分类列表
   ids: [],
   rules: {
     status: [
@@ -97,6 +169,7 @@ const data = reactive({
   },
   viewContent: null,
   viewVisible: false,
+
 })
 
 const viewInit = (content) => {
@@ -109,12 +182,26 @@ const load = () => {
     params: {
       pageNum: data.pageNum,
       pageSize: data.pageSize,
-      title: data.title
+      title: data.title,
+      status: data.status,
+       categoryId: data.categoryId
     }
   }).then(res => {
     if (res.code === '200') {
       data.tableData = res.data?.list || []
       data.total = res.data?.total
+    }
+  })
+}
+const loadCategoryList = () => {
+  request.get('/category/selectAll').then(res => {
+    console.log('分类接口完整返回:', res)
+    console.log('res.data:', res.data)
+    if (res.code === '200') {
+      data.categoryList = res.data || []
+      console.log('第一条数据:', data.categoryList[0])  // 查看字段名
+    } else {
+      ElMessage.error(res.msg)
     }
   })
 }
@@ -170,8 +257,36 @@ const handleSelectionChange = (rows) => {
 
 const reset = () => {
   data.title = null
+  data.status = null
+  data.categoryId = null
+  data.pageNum=1
   load()
 }
 
+loadCategoryList()
 load()
 </script>
+<style scoped>
+.card {
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+.search-bar {
+  background: white;
+  padding: 10px 10px 15px 0px;  /* 上 右 下 左 */
+  margin-bottom: 5px;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+</style>

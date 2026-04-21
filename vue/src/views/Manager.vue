@@ -47,24 +47,20 @@
               <el-icon><Menu /></el-icon>
               <span>信息管理</span>
             </template>
-            <el-menu-item index="/manager/carousel">轮播图信息</el-menu-item>
+            <el-menu-item index="/manager/carousel">轮播图管理</el-menu-item>
             <el-menu-item index="/manager/category">反诈分类</el-menu-item>
-            <el-menu-item index="/manager/article">论坛帖子</el-menu-item>
-            <el-menu-item index="/manager/activity">活动信息</el-menu-item>
-
+            <el-menu-item index="/manager/article">帖子管理</el-menu-item>
+            <el-menu-item index="/manager/exam">考题管理</el-menu-item>
             <el-menu-item index="/manager/case">案例管理</el-menu-item>
-            <el-menu-item index="/manager/exam">题库管理</el-menu-item>
-            <el-menu-item index="/manager/comment">评论信息</el-menu-item>
-            <el-menu-item index="/manager/collect">收藏信息</el-menu-item>
-            <el-menu-item index="/manager/notice">系统公告</el-menu-item>
+            <el-menu-item index="/manager/comment">评论管理</el-menu-item>
           </el-sub-menu>
           <el-sub-menu index="2">
             <template #title>
               <el-icon><Menu /></el-icon>
-              <span>用户管理</span>
+              <span>角色管理</span>
             </template>
-            <el-menu-item index="/manager/admin">管理员信息</el-menu-item>
-            <el-menu-item index="/manager/user">用户信息</el-menu-item>
+            <el-menu-item index="/manager/admin">管理员管理</el-menu-item>
+            <el-menu-item index="/manager/user">用户管理</el-menu-item>
           </el-sub-menu>
         </el-menu>
       </div>

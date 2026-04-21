@@ -1,28 +1,54 @@
 <template>
-  <div>
-    <div class="card" style="margin-bottom: 5px">
-      <el-input v-model="data.articleTitle" prefix-icon="Search" style="width: 240px; margin-right: 10px" placeholder="请输入帖子标题查询"></el-input>
+  <div class="card" style="margin-bottom: 5px">
+    <div class="search-bar" >
+      <el-input
+      v-model="data.articleTitle"
+      prefix-icon="Search"
+      style="width: 240px; margin-right: 10px"
+      placeholder="请输入帖子标题查询"
+      clearable
+      @clear="load"
+      @keyup.enter="load"
+      ></el-input>
       <el-button type="info" plain @click="load">查询</el-button>
       <el-button type="warning" plain style="margin: 0 10px" @click="reset">重置</el-button>
     </div>
 
-    <div class="card" style="margin-bottom: 5px">
-      <el-table stripe :data="data.tableData">
-        <el-table-column prop="articleTitle" label="帖子标题" width="400" show-overflow-tooltip />
-        <el-table-column prop="content" label="评论内容" />
-        <el-table-column prop="userName" label="用户名称" />
-        <el-table-column prop="time" label="评论时间" />
-        <el-table-column label="操作" width="100" fixed="right">
-          <template v-slot="scope">
-            <el-button type="danger" circle :icon="Delete" @click="del(scope.row.id)"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="card" v-if="data.total">
-      <el-pagination @current-change="load" background layout="prev, pager, next" :page-size="data.pageSize" v-model:current-page="data.pageNum" :total="data.total" />
+    <div >
+      <el-button type="danger" plain @click="delBatch">批量删除</el-button>
     </div>
 
+   <div>
+     <el-table
+       stripe
+       :data="data.tableData"
+       style="width: 100%; margin-top: 20px"
+       @selection-change="handleSelectionChange"
+     >
+       <el-table-column type="selection" width="50" />
+       <el-table-column prop="articleTitle" label="帖子标题" min-width="200" show-overflow-tooltip />
+       <el-table-column prop="userName" label="用户" width="150" align="center" />
+       <el-table-column prop="content" label="评论内容" min-width="200" align="center" show-overflow-tooltip />
+       <el-table-column prop="time" label="评论时间" width="160" align="center" />
+       <el-table-column label="操作" width="140" align="center" fixed="right">
+         <template #default="{ row }">
+           <el-button type="danger" circle :icon="Delete" @click="del(row.id)" />
+         </template>
+       </el-table-column>
+     </el-table>
+   </div>
+
+   <!-- 分页 -->
+   <div class="pagination">
+      <el-pagination
+       v-model:current-page="data.pageNum"
+       v-model:page-size="data.pageSize"
+       :total="data.total"
+        layout="total, prev, pager, next, jumper"
+        @size-change="load"
+        @current-change="load"
+       />
+   </div>
   </div>
 </template>
 
@@ -42,6 +68,7 @@ const data = reactive({
   pageSize: 10,
   total: 0,
   articleTitle: null,
+  ids: [],
 })
 
 const load = () => {
@@ -74,6 +101,28 @@ const del = (id) => {
   })
 }
 
+const delBatch = () => {
+  if (!data.ids.length) {
+    ElMessage.warning("请选择数据")
+    return
+  }
+  ElMessageBox.confirm('删除后数据无法恢复，您确定删除吗？', '删除确认', { type: 'warning' }).then(res => {
+    request.delete("/comment/delete/batch", {data: data.ids}).then(res => {
+      if (res.code === '200') {
+        ElMessage.success('操作成功')
+        load()
+      } else {
+        ElMessage.error(res.msg)
+      }
+    })
+  }).catch(err => {
+    console.error(err)
+  })
+}
+
+const handleSelectionChange = (rows) => {
+  data.ids = rows.map(v => v.id)
+}
 const reset = () => {
   data.articleTitle = null
   load()
@@ -81,3 +130,27 @@ const reset = () => {
 
 load()
 </script>
+<style scoped>
+.card {
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+.search-bar {
+  background: white;
+  padding: 10px 10px 15px 0px;  /* 上 右 下 左 */
+  margin-bottom: 5px;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+</style>

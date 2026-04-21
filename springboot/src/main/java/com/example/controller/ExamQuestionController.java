@@ -119,15 +119,6 @@ public class ExamQuestionController {
     }
 
     /**
-     * 管理员——查询所有
-     */
-  /*  @GetMapping("/selectAll")
-    public Result selectAll(ExamQuestion examQuestion) {
-        List<ExamQuestion> list = examQuestionService.selectAll(examQuestion);
-        return Result.success(list);
-    }*/
-
-    /**
      * 管理员——分页查询
      */
     @GetMapping("/selectPage")
