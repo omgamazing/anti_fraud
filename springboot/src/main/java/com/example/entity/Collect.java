@@ -3,11 +3,12 @@ package com.example.entity;
 public class Collect {
     private Integer id;
     private Integer userId;
-    private Integer articleId;
+    private Integer caseId;
 
+    // 关联字段（用于展示）
     private String userName;
-    private String articleTitle;
-    private Article article;
+    private String caseTitle;
+    private Case caseObj;
 
     public Integer getId() {
         return id;
@@ -25,12 +26,12 @@ public class Collect {
         this.userId = userId;
     }
 
-    public Integer getArticleId() {
-        return articleId;
+    public Integer getCaseId() {
+        return caseId;
     }
 
-    public void setArticleId(Integer articleId) {
-        this.articleId = articleId;
+    public void setCaseId(Integer caseId) {
+        this.caseId = caseId;
     }
 
     public String getUserName() {
@@ -41,19 +42,19 @@ public class Collect {
         this.userName = userName;
     }
 
-    public Article getArticle() {
-        return article;
+    public String getCaseTitle() {
+        return caseTitle;
     }
 
-    public void setArticle(Article article) {
-        this.article = article;
+    public void setCaseTitle(String caseTitle) {
+        this.caseTitle = caseTitle;
     }
 
-    public String getArticleTitle() {
-        return articleTitle;
+    public Case getCaseObj() {
+        return caseObj;
     }
 
-    public void setArticleTitle(String articleTitle) {
-        this.articleTitle = articleTitle;
+    public void setCaseObj(Case caseObj) {
+        this.caseObj = caseObj;
     }
 }

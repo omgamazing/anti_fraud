@@ -28,15 +28,16 @@
       @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" />
         <el-table-column prop="title" label="案例标题" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="img" label="图片" width="140" align="center">
+        <el-table-column prop="img" label="封面" width="140" align="center">
           <template v-slot="scope" >
             <el-image
-             style="width: 40px; height: 40px; border-radius: 5px; display: inline-block"
+             style="width: 40px; height: 40px; border-radius: 5px; display: inline-block; cursor: pointer"
              v-if="scope.row.img"
              :src="scope.row.img"
              :preview-src-list="[scope.row.img]"
              preview-teleported
              fit="cover"
+             @click="goToDetail(scope.row)"
              ></el-image>
           </template>
         </el-table-column>
@@ -69,22 +70,29 @@
         />
     </div>
 
-
-    <el-dialog title="宣传信息" v-model="data.formVisible" width="50%" destroy-on-close>
+    <!-- 新增/编辑弹窗 -->
+    <el-dialog title="案例信息" v-model="data.formVisible" width="50%" destroy-on-close>
       <el-form ref="formRef" :rules="data.rules" :model="data.form" label-width="80px" style="padding: 20px">
-        <el-form-item prop="title" label="宣传标题">
-          <el-input v-model="data.form.title" placeholder="请输入宣传标题"></el-input>
+        <el-form-item prop="title" label="案例标题">
+          <el-input v-model="data.form.title" placeholder="请输入案例标题"></el-input>
         </el-form-item>
-        <el-form-item prop="img" label="宣传主图">
+
+        <!-- 图片上传组件 -->
+        <el-form-item prop="img" label="案例图片">
           <el-upload
-              :action="baseUrl + '/files/upload'"
-              :on-success="handleImgUpload"
-              list-type="picture"
+            :action="baseUrl + '/files/upload'"
+            :on-success="handleImgUpload"
+            :on-remove="handleRemove"
+            :file-list="data.fileList"
+            list-type="picture"
           >
-            <el-button type="primary">点击上传</el-button>
+            <el-button type="primary">
+              {{ data.form.img ? '重新上传' : '点击上传' }}
+            </el-button>
           </el-upload>
         </el-form-item>
-        <el-form-item prop="content" label="宣传内容">
+
+        <el-form-item prop="content" label="案例内容">
           <div style="border: 1px solid #ccc; width: 100%">
             <Toolbar
                 style="border-bottom: 1px solid #ccc"
@@ -109,7 +117,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog title="宣传内容" v-model="data.viewVisible" width="50%" destroy-on-close>
+    <el-dialog title="案例内容" v-model="data.viewVisible" width="50%" destroy-on-close>
       <div style="padding: 10px 20px" v-html="data.viewContent"></div>
     </el-dialog>
   </div>
@@ -121,12 +129,11 @@ import {reactive, ref, onBeforeUnmount, shallowRef} from "vue";
 import request from "@/utils/request.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {Delete, Edit} from "@element-plus/icons-vue";
-import '@wangeditor/editor/dist/css/style.css' // 引入 css
+import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
 const formRef = ref()
 const baseUrl = import.meta.env.VITE_BASE_URL
-
 
 const data = reactive({
   user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
@@ -139,15 +146,16 @@ const data = reactive({
   title: null,
   categoryData: [],
   ids: [],
+  fileList: [],  //添加文件列表
   rules: {
     title: [
-      { required: true, message: '请输入宣传标题', trigger: 'blur' },
+      { required: true, message: '请输入案例标题', trigger: 'blur' },
     ],
     img: [
-      { required: true, message: '请上传宣传封面', trigger: 'blur' },
+      { required: true, message: '请上传案例封面', trigger: 'blur' },
     ],
     content: [
-      { required: true, message: '请输入宣传内容', trigger: 'blur' },
+      { required: true, message: '请输入案例内容', trigger: 'blur' },
     ],
   },
   viewContent: null,
@@ -155,24 +163,21 @@ const data = reactive({
 })
 
 /* wangEditor5 初始化开始 */
-const editorRef = shallowRef()  // 编辑器实例，必须用 shallowRef
+const editorRef = shallowRef()
 const mode = 'default'
 const editorConfig = { MENU_CONF: {} }
-// 图片上传配置
 editorConfig.MENU_CONF['uploadImage'] = {
   headers: {
     token: data.user.token,
   },
-  server: baseUrl + '/files/wang/upload',  // 服务端图片上传接口
-  fieldName: 'file'  // 服务端图片上传接口参数
+  server: baseUrl + '/files/wang/upload',
+  fieldName: 'file'
 }
-// 组件销毁时，也及时销毁编辑器，否则可能会造成内存泄漏
 onBeforeUnmount(() => {
   const editor = editorRef.value
   if (editor == null) return
   editor.destroy()
 })
-// 记录 editor 实例，重要！
 const handleCreated = (editor) => {
   editorRef.value = editor
 }
@@ -198,13 +203,22 @@ const load = () => {
   })
 }
 
+// 新增
 const handleAdd = () => {
   data.form = {}
+  data.fileList = []
   data.formVisible = true
 }
 
+// 编辑
 const handleEdit = (row) => {
   data.form = JSON.parse(JSON.stringify(row))
+  // 设置文件列表显示原有图片
+  if (row.img) {
+    data.fileList = [{ url: row.img }]
+  } else {
+    data.fileList = []
+  }
   data.formVisible = true
 }
 
@@ -219,6 +233,7 @@ const add = () => {
     }
   })
 }
+
 const update = () => {
   request.put('/case/update', data.form).then(res => {
     if (res.code === '200') {
@@ -238,7 +253,7 @@ const save = () => {
 }
 
 const del = (id) => {
-  ElMessageBox.confirm('删除后数据无法恢复，您确定删除吗？', '删除确认', { type: 'warning' }).then(res => {
+  ElMessageBox.confirm('删除后数据无法恢复，您确定删除吗？', '删除确认', { type: 'warning' }).then(() => {
     request.delete('/case/delete/' + id).then(res => {
       if (res.code === '200') {
         ElMessage.success("删除成功")
@@ -251,12 +266,13 @@ const del = (id) => {
     console.error(err)
   })
 }
+
 const delBatch = () => {
   if (!data.ids.length) {
     ElMessage.warning("请选择数据")
     return
   }
-  ElMessageBox.confirm('删除后数据无法恢复，您确定删除吗？', '删除确认', { type: 'warning' }).then(res => {
+  ElMessageBox.confirm('删除后数据无法恢复，您确定删除吗？', '删除确认', { type: 'warning' }).then(() => {
     request.delete("/case/delete/batch", {data: data.ids}).then(res => {
       if (res.code === '200') {
         ElMessage.success('操作成功')
@@ -269,6 +285,7 @@ const delBatch = () => {
     console.error(err)
   })
 }
+
 const handleSelectionChange = (rows) => {
   data.ids = rows.map(v => v.id)
 }
@@ -278,12 +295,27 @@ const reset = () => {
   load()
 }
 
+// 图片上传成功
 const handleImgUpload = (res) => {
   data.form.img = res.data
+  data.fileList = [{ url: res.data }]
+}
+
+// 删除图片
+const handleRemove = () => {
+  data.form.img = null
+  data.fileList = []
+}
+
+// 点击图片跳转详情（如果需要的话）
+const goToDetail = (row) => {
+  // 如果需要点击图片跳转，在这里添加逻辑
+  console.log('点击图片', row)
 }
 
 load()
 </script>
+
 <style scoped>
 .card {
   background: white;
@@ -292,7 +324,7 @@ load()
 }
 .search-bar {
   background: white;
-  padding: 10px 10px 15px 0px;  /* 上 右 下 左 */
+  padding: 10px 10px 15px 0px;
   margin-bottom: 5px;
   border-radius: 8px;
   display: flex;

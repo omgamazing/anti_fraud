@@ -1,11 +1,159 @@
-.front-notice {
-    padding: 5px 20px;
-    color: #666;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
+/* 容器 - 使用背景图，左对齐 */
+.auth-container {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background-image: url("@/assets/imgs/bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  padding-left: 18%;
 }
 
+/* 隐藏装饰形状 */
+.bg-shape {
+  display: none;
+}
+
+/* 卡片盒子 */
+.auth-box {
+  position: relative;
+  width: 460px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  transition: transform 0.3s ease;
+}
+
+.auth-box:hover {
+  transform: translateY(-5px);
+}
+
+/* Logo 区域 */
+.logo-area {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1450aa;
+  margin-bottom: 8px;
+}
+
+.logo-sub {
+  font-size: 14px;
+  color: #999;
+  letter-spacing: 1px;
+}
+
+/* 欢迎语 */
+.welcome-text {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.welcome-text h2 {
+  font-size: 16px;
+  font-weight: 500;
+  color: balck;
+  margin: 0 0 6px 0;
+}
+
+.welcome-text p {
+  font-size: 12px;
+  color: #aaa;
+  margin: 0;
+}
+
+/* 输入框样式 */
+.custom-input :deep(.el-input__wrapper) {
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px #e4e7ed inset;
+  transition: all 0.3s ease;
+}
+
+.custom-input :deep(.el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px #1450aa inset;
+}
+
+.custom-input :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 2px rgba(20, 80, 170, 0.2), 0 0 0 1px #1450aa inset;
+}
+
+/* 按钮样式 */
+.auth-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1450aa 0%, #1e6fd9 100%);
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(20, 80, 170, 0.4);
+}
+
+.auth-btn:active {
+  transform: translateY(0);
+}
+
+/* 链接 */
+.auth-link {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin-top: 20px;
+}
+
+.auth-link a {
+  color: #1450aa;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+
+/* 底部装饰点 */
+.auth-footer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.auth-footer .dot {
+  width: 6px;
+  height: 6px;
+  background: #ddd;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.auth-footer .dot:first-child {
+  width: 20px;
+  background: #1450aa;
+  border-radius: 3px;
+}
 .front-header {
     display: flex;
     height: 60px;

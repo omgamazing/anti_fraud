@@ -1,6 +1,7 @@
 package com.example.mapper;
 
 import com.example.entity.User;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -20,5 +21,7 @@ public interface UserMapper {
     User selectByUsername(String username);
 
     List<User> selectAll(User user);
+
+    List<User> selectPage(@Param("keyword") String keyword);
 
 }

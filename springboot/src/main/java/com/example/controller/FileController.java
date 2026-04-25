@@ -15,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,14 +36,34 @@ public class FileController {
      */
     @PostMapping("/upload")
     public Result upload(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
+        String originalFilename = file.getOriginalFilename();
+
+        // ========== 添加文件验证 ==========
+        // 1. 获取文件后缀
+        String suffix = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            suffix = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+        }
+
+        // 2. 允许的图片格式
+        List<String> allowedSuffix = Arrays.asList("jpg", "jpeg", "png", "gif", "webp", "bmp");
+        if (!allowedSuffix.contains(suffix)) {
+            return Result.error("只允许上传图片格式（jpg、png、gif、webp）");
+        }
+
+        // 3. 限制文件大小（2MB = 2 * 1024 * 1024）
+        if (file.getSize() > 2 * 1024 * 1024) {
+            return Result.error("图片大小不能超过2MB");
+        }
+        // ========== 验证结束 ==========
+
+        String fileName = originalFilename;
         try {
             if (!FileUtil.isDirectory(filePath)) {
                 FileUtil.mkdir(filePath);
             }
             fileName = System.currentTimeMillis() + "-" + fileName;
             String realFilePath = filePath + fileName;
-            // 文件存储形式：时间戳-文件名
             FileUtil.writeBytes(file.getBytes(), realFilePath);
         } catch (Exception e) {
             log.error(fileName + "--文件上传失败", e);

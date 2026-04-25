@@ -1,158 +1,193 @@
 <template>
   <div class="my-simulation-container">
     <div class="header">
-      <h1> 考试记录📋</h1>
+      <h1>📋 考试记录</h1>
+       <button @click="goToExam" class="back-btn">去考试💪</button>
     </div>
 
-
-    <div style="background-color: #f8f8f8; padding: 20px">
-        <div style="width: 100%; margin: 0 auto ">
-            <el-input
-            prefix-icon="Search"
-                v-model="data.searchKey"
-                placeholder="请输入考试类型查询"
-                style="width: 300px;height: 35px;margin-right: 18px"
-                @keyup.enter="Search"
-                clearable
-                @clear="clearSearch"
-            ></el-input>
-            <el-button type="info" plain @click="Search">查询</el-button>
-            <el-table
-                :data="data.records"
-                style="width: 100%; margin-top: 20px"
-                :default-sort="{ prop: 'createTime', order: 'descending' }"
-                >
-                <el-table-column prop="examTypeName" label="考试类型" width="120" align="center" margin-left:10px/>
-                <el-table-column prop="userScore" label="得分" sortable width="120" align="center"/>
-                <el-table-column prop="duration" label="用时" sortable width="100" align="center">
-                  <template #default="{ row }">
-                    {{ formatDuration(row.duration) }}
-                  </template>
-                </el-table-column>
-                <el-table-column prop="createTime" label="考试时间" sortable width="150" align="center">
-                    <template #default="{ row }">
-                        {{ formatTime(row.createTime) }}
-                    </template>
-                </el-table-column>
-                <el-table-column label="状态" sortable width="120" align="center">
-                    <template #default="{row}">
-                        <!-- 得分 ≥ 60 → 通过，否则未通过 -->
-                        <el-tag :type="row.userScore >= 60 ? 'success' : 'danger'" disable-transitions="false">
-                            {{ row.result === 'success' ? '通过' : '未通过' }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" width="100" align="center">
-                    <template #default="{row}">
-                        <el-button type="primary" size="small" @click="showDetail(row)">详情</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <div v-if="data.total" style="margin-top: 20px">
-                <el-pagination
-                    @current-change="load"
-                    layout="total, prev, pager, next"
-                    :page-size="data.pageSize"
-                    v-model:current-page="data.pageNum"
-                    :total="data.total"
-                />
-            </div>
-
-         </div>
+    <!-- 统计卡片（从 records 计算） -->
+    <div class="stats-cards">
+      <div class="stat-card total">
+        <div class="stat-value">{{ data.stats.totalCount }}</div>
+        <div class="stat-label">总考试次数</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="stat-value">{{ data.stats.passCount }}</div>
+        <div class="stat-label">通过次数</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="stat-value">{{ data.stats.failCount }}</div>
+        <div class="stat-label">未通过次数</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="stat-value">{{ data.stats.passRate }}%</div>
+        <div class="stat-label">通过率</div>
+      </div>
     </div>
-    <!-- 记录列表 -->
-    <div class="record-list">
-        <div v-if="data.records.length === 0" class="empty-state">
-            <div class="empty-icon">📭</div>
-            <p>暂无考试记录</p>
-            <button @click="goToExam" class="start-exam-btn">开始考试</button>
+
+     <div style="background-color: #f8f8f8; padding: 20px">
+            <div style="width: 100%; margin: 0 auto ">
+                <el-input
+                prefix-icon="Search"
+                    v-model="data.searchKey"
+                    placeholder="请输入考试类型查询"
+                    style="width: 300px;height: 35px;margin-right: 18px"
+                    @keyup.enter="Search"
+                    clearable
+                    @clear="clearSearch"
+                ></el-input>
+                <el-button type="info" plain @click="Search">查询</el-button>
+                <el-table
+                    :data="data.records"
+                    style="width: 100%; margin-top: 20px"
+                    :default-sort="{ prop: 'createTime', order: 'descending' }"
+                    >
+                    <el-table-column prop="examTypeName" label="考试类型" width="120" align="center" margin-left:10px/>
+                    <el-table-column prop="userScore" label="得分" sortable width="120" align="center"/>
+                    <el-table-column prop="duration" label="用时" sortable width="100" align="center">
+                      <template #default="{ row }">
+                        {{ formatDuration(row.duration) }}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="createTime" label="考试时间" sortable width="150" align="center">
+                        <template #default="{ row }">
+                            {{ formatTime(row.createTime) }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="状态" sortable width="120" align="center">
+                        <template #default="{row}">
+                            <!-- 得分 ≥ 60 → 通过，否则未通过 -->
+                            <el-tag :type="row.userScore >= 60 ? 'success' : 'danger'" disable-transitions="false">
+                                {{ row.result === 'success' ? '通过' : '未通过' }}
+                            </el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="详情" width="100" align="center">
+                        <template #default="{row}">
+                            <el-button type="primary" size="small" @click="showDetail(row)">查看</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div v-if="data.total" style="margin-top: 20px; display: flex; justify-content: flex-end">
+                    <el-pagination
+                        @current-change="load"
+                        layout="total, prev, pager, next"
+                        :page-size="data.pageSize"
+                        v-model:current-page="data.pageNum"
+                        :total="data.total"
+                    />
+                </div>
+
+             </div>
         </div>
-    </div>
-
+        <!-- 记录列表 -->
+        <div class="record-list">
+            <div v-if="data.records.length === 0" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>暂无考试记录</p>
+                <button @click="goToExam" class="start-exam-btn">开始考试</button>
+            </div>
+        </div>
 
   </div>
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import request from '@/utils/request.js'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
-// 所有数据统一用 reactive 管理
+
 const data = reactive({
   user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
-  records: [],
+  records: [],      // 所有考试记录
   searchKey: null,
-  currentPage: 1,
+  pageNum: 1,
   pageSize: 10,
+  total: 0,
+  stats: {
+    totalCount: 0,
+    passCount: 0,
+    failCount: 0,
+    passRate: 0
+  }
 })
 
+// 计算统计数据（从 records 中计算）
+const calculateStats = () => {
+  const records = data.records || []
+  const totalCount = records.length
+  const passCount = records.filter(r => r.userScore >= 60).length
+  const failCount = totalCount - passCount
+  const passRate = totalCount > 0 ? Math.round((passCount / totalCount) * 100) : 0
 
-// 获取记录列表
-const fetchRecords = async () => {
-    const userId = data.user.id
-    console.log('userId',userId)
-
-    request.get('/exam/record/statistics', {
-        params: { userId }
-      }).then(res => {
-        if (res.code === '200') {
-        data.records = res.data
-        console.log('打印该用户考试记录',data.records)
-        }else {
-          ElMessage.error(res.msg)
-          ElMessage.error('考试记录获取失败')
-        }
-      })
+  data.stats = {
+    totalCount,
+    passCount,
+    failCount,
+    passRate
+  }
 }
 
-// 加载数据
+// 获取所有考试记录
+const fetchRecords = () => {
+  const userId = data.user.id
+  request.get('/exam/record/statistics', {
+    params: { userId }
+  }).then(res => {
+    if (res.code === '200') {
+      data.records = res.data || []
+      calculateStats()  // 计算统计数据
+      console.log('打印该用户考试记录', data.records)
+    } else {
+      ElMessage.error(res.msg)
+    }
+  })
+}
+
+// 加载分页数据
 const load = () => {
-    request.get('/exam/record/selectPage', {
-        params: {
-          pageNum: data.pageNum,
-          pageSize: data.pageSize,
-          examTypeName: data.searchKey,
-          userId: data.user.id
-        }
-      }).then(res => {
-        if (res.code === '200') {
-        console.log('打印后端返回res',res)
-           data.records = res.data?.list
-           data.total = res.data?.total
-           console.log('打印该页数据',data.records)
-        }else {
-          ElMessage.error(res.msg)
-        }
-      })
-
+  request.get('/exam/record/selectPage', {
+    params: {
+      pageNum: data.pageNum,
+      pageSize: data.pageSize,
+      examTypeName: data.searchKey,
+      userId: data.user.id
+    }
+  }).then(res => {
+    if (res.code === '200') {
+      data.records = res.data?.list || []
+      data.total = res.data?.total || 0
+      calculateStats()  // 重新计算统计数据
+    } else {
+      ElMessage.error(res.msg)
+    }
+  })
 }
+
 // 搜索
 const Search = () => {
   data.pageNum = 1
   load()
 }
-// 清空：清空关键词，重置页码，调用 load
+
+// 清空搜索
 const clearSearch = () => {
   data.searchKey = ''
   data.pageNum = 1
   load()
 }
-// 翻页
-const handlePageChange = (page) => {
-  data.pageNum = page
-  load()
-}
 
-// 格式化开始时间
+// 格式化时间
 const formatTime = (timeStr) => {
   if (!timeStr) return ''
   const date = new Date(timeStr)
-  //return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
   return date.toLocaleString('zh-CN', { hour12: false })
 }
-// 格式化 考试用时
+
+// 格式化时长
 const formatDuration = (seconds) => {
   if (!seconds && seconds !== 0) return '0秒'
   const mins = Math.floor(seconds / 60)
@@ -160,20 +195,16 @@ const formatDuration = (seconds) => {
   if (mins === 0) return `${secs}秒`
   return `${mins}分${secs}秒`
 }
-// 打开答卷
+
+// 查看详情
 const showDetail = (row) => {
-  data.currentRecord = row
-  console.log("showDetails:",row)
   router.push({
-        path: '/front/examDetail',
-        query: {
-           id: row.id  // 只传 id！！！
-        }
-      })
+    path: '/front/examDetail',
+    query: { id: row.id }
+  })
 }
 
-
-// 重新测试
+// 去考试
 const goToExam = () => {
   router.push('/front/ExamSelect')
 }
@@ -254,7 +285,37 @@ onMounted(() => {
   border-radius: 20px;
   cursor: pointer;
 }
+/* 统计卡片 */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.stat-card.total .stat-value { color: #6c757d; }
+.stat-card.success .stat-value { color: #28a745; }
+.stat-card.fail .stat-value { color: #dc3545; }
+.stat-card.rate .stat-value { color: #667eea; }
 /* 弹窗样式 */
 .modal-overlay {
   position: fixed;

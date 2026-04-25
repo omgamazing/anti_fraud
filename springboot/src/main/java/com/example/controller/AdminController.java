@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.common.Result;
 import com.example.entity.Admin;
+import com.example.entity.User;
 import com.example.service.AdminService;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
@@ -77,10 +78,10 @@ public class AdminController {
      * 分页查询
      */
     @GetMapping("/selectPage")
-    public Result selectPage(Admin admin,
-                             @RequestParam(defaultValue = "1") Integer pageNum,
-                             @RequestParam(defaultValue = "10") Integer pageSize) {
-        PageInfo<Admin> pageInfo = adminService.selectPage(admin, pageNum, pageSize);
+    public Result selectPage(@RequestParam(defaultValue = "1") Integer pageNum,
+                             @RequestParam(defaultValue = "10") Integer pageSize,
+                             @RequestParam(required = false) String keyword) {
+        PageInfo<User> pageInfo = adminService.selectPage(pageNum, pageSize,keyword);
         return Result.success(pageInfo);
     }
 

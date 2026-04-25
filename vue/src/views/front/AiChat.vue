@@ -88,11 +88,12 @@
 
 <script setup>
 import { ref, onMounted, nextTick,reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute,useRouter } from 'vue-router'
 import request from '@/utils/request.js'
 import { ElMessage } from 'element-plus'  // 如果用了 Element Plus
 
 //获取路由实例（Vue3组合式API写法）
+const route = useRoute()
 const router = useRouter()
 const data = reactive({
   user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
@@ -138,6 +139,15 @@ onMounted(() => {
     localStorage.setItem('chat_session_id', sid)
   }
   data.sessionId = sid
+
+
+  // 从 URL 获取场景参数
+  const sceneFromUrl = route.query.scene
+  if (sceneFromUrl && data.scenes.includes(sceneFromUrl)) {
+    data.scene = sceneFromUrl
+    // 自动开始模拟
+    startSimulation()
+  }
 })
 
 // ===== 定义：滚动函数，只在需要时调用 =====

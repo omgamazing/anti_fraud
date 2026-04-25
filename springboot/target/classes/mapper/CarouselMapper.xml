@@ -4,12 +4,22 @@
 <mapper namespace="com.example.mapper.CarouselMapper">
 
     <select id="selectAll" resultType="com.example.entity.Carousel">
-        select carousel.*, article.title as articleTitle from `carousel`
-        left join article on carousel.article_id = article.id
+        SELECT
+        carousel.*,
+        CASE
+        WHEN carousel.target_type = 'article' THEN article.title
+        WHEN carousel.target_type = 'case' THEN `case`.title
+        END as target_title
+        FROM carousel
+        LEFT JOIN article ON carousel.target_type = 'article' AND carousel.target_id = article.id
+        LEFT JOIN `case` ON carousel.target_type = 'case' AND carousel.target_id = `case`.id
         <where>
-            <if test="articleTitle != null"> and article.title like concat('%', #{articleTitle}, '%')</if>
+            <if test="targetTitle != null and targetTitle != ''">
+                AND (article.title LIKE CONCAT('%', #{targetTitle}, '%')
+                OR `case`.title LIKE CONCAT('%', #{targetTitle}, '%'))
+            </if>
         </where>
-        order by id desc
+        ORDER BY carousel.id DESC
     </select>
 
     <delete id="deleteById">
@@ -22,12 +32,14 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="img != null">img,</if>
-            <if test="articleId != null">article_id,</if>
+            <if test="targetType != null">target_type,</if>
+            <if test="targetId != null">target_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="img != null">#{img},</if>
-            <if test="articleId != null">#{articleId},</if>
+            <if test="targetType != null">#{targetType},</if>
+            <if test="targetId != null">#{targetId},</if>
         </trim>
     </insert>
 
@@ -37,8 +49,11 @@
             <if test="img != null">
                 img = #{img},
             </if>
-            <if test="articleId != null">
-                article_id = #{articleId},
+            <if test="targetType != null">
+                target_type = #{targetType},
+            </if>
+            <if test="targetId != null">
+                target_id = #{targetId},
             </if>
         </set>
         where id = #{id}

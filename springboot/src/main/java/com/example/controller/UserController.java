@@ -77,10 +77,10 @@ public class UserController {
      * 分页查询
      */
     @GetMapping("/selectPage")
-    public Result selectPage(User user,
-                             @RequestParam(defaultValue = "1") Integer pageNum,
-                             @RequestParam(defaultValue = "10") Integer pageSize) {
-        PageInfo<User> pageInfo = userService.selectPage(user, pageNum, pageSize);
+    public Result selectPage(@RequestParam(defaultValue = "1") Integer pageNum,
+                             @RequestParam(defaultValue = "10") Integer pageSize,
+                             @RequestParam(required = false) String keyword) {
+        PageInfo<User> pageInfo = userService.selectPage(pageNum, pageSize,keyword);
         return Result.success(pageInfo);
     }
 

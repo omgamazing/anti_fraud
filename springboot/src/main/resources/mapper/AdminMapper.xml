@@ -11,6 +11,17 @@
         order by id desc
     </select>
 
+    <select id="selectPage" resultType="com.example.entity.User">
+        select * from `admin`
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (username like concat('%', #{keyword}, '%')
+                or name like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by id desc
+    </select>
+
     <delete id="deleteById">
         delete from `admin`
         where id = #{id}

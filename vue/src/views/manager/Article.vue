@@ -52,7 +52,7 @@
       >
         <el-table-column type="selection" width="50" />
         <el-table-column prop="title" label="帖子名称" width="200" show-overflow-tooltip />
-        <el-table-column prop="img" label="主图" width="80" align="center">
+        <el-table-column prop="img" label="封面" width="80" align="center">
           <template #default="{ row }">
             <el-image
               v-if="row.img"
@@ -65,7 +65,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="categoryName" label="反诈分类" align="center"/>
-        <el-table-column prop="userName" label="发布者" align="center"/>
+        <el-table-column prop="userName" label="发布者" width="100" align="center" show-overflow-tooltip/>
         <el-table-column prop="time" label="发布时间" width="140" align="center"/>
         <el-table-column prop="views" label="浏览量" width="70" align="center"/>
         <el-table-column prop="status" label="审核状态" width="100" align="center">

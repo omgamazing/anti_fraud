@@ -1,48 +1,96 @@
 <template>
-  <div class="login-container">
-    <div class="login-box">
-      <div style="font-weight: bold; font-size: 24px; text-align: center; margin-bottom: 30px; color: #1450aa">欢迎登录反诈宣传网站</div>
+  <div class="auth-container">
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <div class="auth-box">
+      <div class="logo-area">
+        <div class="logo-text">网络安全反诈模拟系统</div>
+        <div class="logo-sub">Anti-Fraud Simulation System</div>
+      </div>
+
+      <div class="welcome-text">
+        <h2>欢迎登录</h2>
+        <p>请输入您的账号信息</p>
+      </div>
+
       <el-form ref="formRef" :model="data.form" :rules="data.rules">
         <el-form-item prop="username">
-          <el-input :prefix-icon="User" size="large" v-model="data.form.username" placeholder="请输入账号"></el-input>
+          <el-input
+            size="large"
+            v-model="data.form.username"
+            placeholder="请输入账号"
+            :prefix-icon="User"
+            class="custom-input"
+          ></el-input>
         </el-form-item>
+
         <el-form-item prop="password">
-          <el-input show-password :prefix-icon="Lock" size="large" v-model="data.form.password" placeholder="请输入密码"></el-input>
+          <el-input
+            show-password
+            size="large"
+            v-model="data.form.password"
+            placeholder="请输入密码"
+            :prefix-icon="Lock"
+            class="custom-input"
+          ></el-input>
         </el-form-item>
+
         <el-form-item prop="role">
-          <el-select size="large" v-model="data.form.role" placeholder="请选择角色">
+          <el-select
+            size="large"
+            v-model="data.form.role"
+            placeholder="请选择角色"
+            class="custom-select"
+          >
             <el-option value="ADMIN" label="管理员"></el-option>
-            <el-option value="USER" label="用户"></el-option>
+            <el-option value="USER" label="普通用户"></el-option>
           </el-select>
         </el-form-item>
+
         <el-form-item>
-          <el-button size="large" type="primary" style="width: 100%" @click="login">登 录</el-button>
+          <el-button size="large" type="primary" class="auth-btn" @click="login">
+            <span>登 录</span>
+            <el-icon><Right /></el-icon>
+          </el-button>
         </el-form-item>
-        <div style="text-align: right">
-          还没有账号？请 <a href="/register">注册</a>
+
+        <div class="auth-link">
+          还没有账号？请 <router-link to="/register">注册</router-link>
         </div>
       </el-form>
+
+      <div class="auth-footer">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
     </div>
-    <div style="width: 45%"></div>
   </div>
 </template>
 
 <script setup>
 import { reactive, ref } from "vue";
-import { User, Lock } from "@element-plus/icons-vue";
+import { User, Lock, Right } from "@element-plus/icons-vue";
 import request from "@/utils/request.js";
-import {ElMessage} from "element-plus";
-import router from "@/router/index.js";
+import { ElMessage } from "element-plus";
+import "@/assets/css/front.css";
 
 const data = reactive({
-  dialogVisible: true,
-  form: {},
+  form: {
+    username: '',
+    password: '',
+    role: ''
+  },
   rules: {
     username: [
-      { required: true, message: '请输入账号', trigger: 'blur' }
+      { required: true, message: '请输入账号', trigger: 'blur' },
+      { min: 2, max: 20, message: '账号长度在2-20个字符之间', trigger: 'blur' }
     ],
     password: [
-      { required: true, message: '请输入密码', trigger: 'blur' }
+      { required: true, message: '请输入密码', trigger: 'blur' },
+      { min: 6, max: 20, message: '密码长度在6-20个字符之间', trigger: 'blur' }
     ],
     role: [
       { required: true, message: '请选择角色', trigger: 'blur' }
@@ -54,15 +102,14 @@ const formRef = ref()
 
 const login = () => {
   formRef.value.validate(valid => {
-    if (valid) { // 表示表单校验通过
+    if (valid) {
       request.post('/login', data.form).then(res => {
         if (res.code === '200') {
           ElMessage.success('登录成功')
-          // 存储用户信息到浏览器的缓存
           localStorage.setItem('xm-user', JSON.stringify(res.data))
           setTimeout(() => {
             if ('ADMIN' === res.data.role) {
-              location.href = '/manager/home'
+              location.href = '/manager/dashBoard'
             } else {
               location.href = '/front/home'
             }
@@ -70,6 +117,8 @@ const login = () => {
         } else {
           ElMessage.error(res.msg)
         }
+      }).catch(() => {
+        ElMessage.error('登录失败，请检查网络')
       })
     }
   })
@@ -77,21 +126,12 @@ const login = () => {
 </script>
 
 <style scoped>
-.login-container {
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  //background: linear-gradient(to top, #7f7fd5, #86a8e7, #91eae4);
-  background-image: url("@/assets/imgs/bg.png");
-  background-size: cover;
+/* 登录页特有样式 */
+.custom-select {
+  width: 100%;
 }
-.login-box {
-  width: 400px;
-  padding: 45px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: rgba(255, 255, 255, 0.5);
+
+.custom-select :deep(.el-input__wrapper) {
+  border-radius: 12px;
 }
 </style>

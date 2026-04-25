@@ -18,7 +18,7 @@ public interface CaseMapper {
 
     List<Case> selectAll(Case aCase);
 
-    @Select("select * from `case` order by views desc limit 4")
+    @Select("select * from `case` order by views limit 4")
     List<Case> selectTop4();
 
 

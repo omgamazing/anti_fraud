@@ -1,6 +1,6 @@
 <template>
   <div style="min-height: 100vh">
-    <div style="width: 40%; margin: 20px auto" class="card">
+    <div style="width: 40%;margin:0 auto" class="card">
       <div style="font-size: 20px; padding: 20px">修改密码</div>
       <el-form ref="formRef" :rules="data.rules" :model="data.user" label-width="80px" style="padding: 20px">
         <el-form-item label="原密码" prop="password">

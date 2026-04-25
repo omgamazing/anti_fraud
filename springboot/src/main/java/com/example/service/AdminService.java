@@ -6,6 +6,7 @@ import com.example.common.enums.ResultCodeEnum;
 import com.example.common.enums.RoleEnum;
 import com.example.entity.Account;
 import com.example.entity.Admin;
+import com.example.entity.User;
 import com.example.exception.CustomException;
 import com.example.mapper.AdminMapper;
 import com.example.utils.TokenUtils;
@@ -62,9 +63,9 @@ public class AdminService {
         return adminMapper.selectAll(admin);
     }
 
-    public PageInfo<Admin> selectPage(Admin admin, Integer pageNum, Integer pageSize) {
+    public PageInfo<User> selectPage(Integer pageNum, Integer pageSize, String keyword) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Admin> list = adminMapper.selectAll(admin);
+        List<User> list = adminMapper.selectPage(keyword);  // 直接传 keyword
         return PageInfo.of(list);
     }
 

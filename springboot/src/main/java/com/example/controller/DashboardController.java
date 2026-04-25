@@ -22,67 +22,109 @@ public class DashboardController {
     private ArticleService articleService;
     @Resource
     private CaseService caseService;
-   /* @Resource
-    private ActivityService activityService;*/
     @Resource
     private UserService userService;
     @Resource
     private CategoryService categoryService;
+    @Resource
+    private SimulationRecordService simulationRecordService;
+    @Resource
+    private ExamRecordService examRecordService;
 
-
+    /**
+     * 统计数据：用户帖子总数、反诈百科数量、AI模拟次数、平台用户总数
+     */
     @GetMapping("/base")
     public Result base() {
         Map<String, Integer> map = new HashMap<>();
-        List<Article> articles = articleService.selectAll(new Article()).stream().filter(x -> "审核通过".equals(x.getStatus())).collect(Collectors.toList());
+
+        // 用户帖子总数（审核通过的）
+        List<Article> articles = articleService.selectAll(new Article()).stream()
+                .filter(x -> "审核通过".equals(x.getStatus()))
+                .collect(Collectors.toList());
         map.put("article", articles.size());
-        map.put("news", caseService.selectAll(new Case()).size());
-       // map.put("activity", activityService.selectAll(new Activity()).size());
+
+        // 反诈百科数量
+        map.put("case", caseService.selectAll(new Case()).size());
+
+        // AI模拟次数（从模拟记录表统计）
+        map.put("simulation", simulationRecordService.countAll());
+
+        // 平台用户总数
         map.put("user", userService.selectAll(new User()).size());
+
         return Result.success(map);
     }
 
-    @GetMapping("/line")
-    public Result line() {
+    /**
+     * AI模拟趋势图（最近一个月）
+     */
+    @GetMapping("/simulationTrend")
+    public Result simulationTrend() {
         Map<String, Object> map = new HashMap<>();
-        List<Long> yList = new ArrayList<>();
+        List<Integer> yList = new ArrayList<>();
 
-        // 获取最近7天的数据（年-月-日）放在xList里
+        // 获取最近一个月的日期
         Date today = new Date();
-        DateTime start = DateUtil.offsetDay(today, -7);
-        List<String> xList = DateUtil.rangeToList(start, today, DateField.DAY_OF_YEAR).stream().map(DateUtil::formatDate).toList();
+        DateTime start = DateUtil.offsetDay(today, -29); // 最近7天（包含今天）
+        List<String> xList = DateUtil.rangeToList(start, today, DateField.DAY_OF_YEAR)
+                .stream()
+                .map(DateUtil::formatDate)
+                .collect(Collectors.toList());
 
-
+        // 获取最近一个月每天的模拟次数
+        for (String date : xList) {
+            int count = simulationRecordService.countByDate(date);
+            yList.add(count);
+        }
 
         map.put("x", xList);
         map.put("y", yList);
         return Result.success(map);
     }
 
-    @GetMapping("/pie1")
-    public Result pie1() {
+    /**
+     * 帖子分类占比（饼图1）
+     */
+    @GetMapping("/articleCategory")
+    public Result articleCategory() {
         List<Map<String, Object>> list = new ArrayList<>();
         List<Category> categories = categoryService.selectAll(new Category());
-        List<Article> articles = articleService.selectAll(new Article());
+        List<Article> articles = articleService.selectAll(new Article()).stream()
+                .filter(x -> "审核通过".equals(x.getStatus()))
+                .collect(Collectors.toList());
+
         for (Category category : categories) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("name", category.getName());
-            map.put("value", articles.stream().filter(x -> x.getCategoryId().equals(category.getId())).count());
-            list.add(map);
+            long count = articles.stream()
+                    .filter(x -> category.getId().equals(x.getCategoryId()))
+                    .count();
+            if (count > 0) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("name", category.getName());
+                map.put("value", count);
+                list.add(map);
+            }
         }
         return Result.success(list);
     }
 
-    @GetMapping("/pie2")
-    public Result pie2() {
+    /**
+     * 考试分类占比（饼图2）
+     */
+    @GetMapping("/examCategory")
+    public Result examCategory() {
         List<Map<String, Object>> list = new ArrayList<>();
-        List<Category> categories = categoryService.selectAll(new Category());
-        //List<Activity> activities = activityService.selectAll(new Activity());
-        for (Category category : categories) {
+
+        // 从考试记录表统计各类型考试次数
+        List<Map<String, Object>> examStats = examRecordService.getExamTypeCount();
+
+        for (Map<String, Object> stat : examStats) {
             Map<String, Object> map = new HashMap<>();
-            map.put("name", category.getName());
-            //map.put("value", activities.stream().filter(x -> x.getCategoryId().equals(category.getId())).count());
+            map.put("name", stat.get("name"));
+            map.put("value", stat.get("value"));
             list.add(map);
         }
+
         return Result.success(list);
     }
 }

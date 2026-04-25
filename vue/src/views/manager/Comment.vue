@@ -2,7 +2,7 @@
   <div class="card" style="margin-bottom: 5px">
     <div class="search-bar" >
       <el-input
-      v-model="data.articleTitle"
+      v-model="data.content"
       prefix-icon="Search"
       style="width: 240px; margin-right: 10px"
       placeholder="请输入帖子标题查询"
@@ -27,7 +27,7 @@
      >
        <el-table-column type="selection" width="50" />
        <el-table-column prop="articleTitle" label="帖子标题" min-width="200" show-overflow-tooltip />
-       <el-table-column prop="userName" label="用户" width="150" align="center" />
+       <el-table-column prop="userName" label="用户昵称" width="150" align="center" show-overflow-tooltip />
        <el-table-column prop="content" label="评论内容" min-width="200" align="center" show-overflow-tooltip />
        <el-table-column prop="time" label="评论时间" width="160" align="center" />
        <el-table-column label="操作" width="140" align="center" fixed="right">
@@ -67,7 +67,7 @@ const data = reactive({
   pageNum: 1,
   pageSize: 10,
   total: 0,
-  articleTitle: null,
+  content: null,
   ids: [],
 })
 
@@ -76,7 +76,7 @@ const load = () => {
     params: {
       pageNum: data.pageNum,
       pageSize: data.pageSize,
-      articleTitle: data.articleTitle
+      content: data.content
     }
   }).then(res => {
     if (res.code === '200') {
@@ -124,7 +124,8 @@ const handleSelectionChange = (rows) => {
   data.ids = rows.map(v => v.id)
 }
 const reset = () => {
-  data.articleTitle = null
+  data.content = null
+  data.pageNum = 1
   load()
 }
 

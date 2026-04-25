@@ -1,7 +1,7 @@
 <template>
   <div style="width: 50%" class="card">
     <el-form ref="user" :model="data.user" label-width="70px" style="padding: 20px">
-      <el-form-item prop="avatar" label="头像">
+      <div style="text-align: center; margin-bottom: 20px">
         <el-upload
             :action="baseUrl + '/files/upload'"
             :on-success="handleFileUpload"
@@ -11,7 +11,7 @@
           <img v-if="data.user.avatar" :src="data.user.avatar" class="avatar" />
           <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
         </el-upload>
-      </el-form-item>
+      </div>
       <el-form-item prop="username" label="用户名">
         <el-input disabled v-model="data.user.username" placeholder="请输入用户名"></el-input>
       </el-form-item>
@@ -73,7 +73,7 @@ const update = () => {
 }
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   position: relative;
   overflow: hidden;

@@ -4,6 +4,7 @@ import com.example.entity.ExamRecord;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ExamRecordMapper {
@@ -43,7 +44,9 @@ public interface ExamRecordMapper {
     })
     List<ExamRecord> findByUserIdAndExamTypeName(@Param("userId") Integer userId, @Param("examTypeName") String examTypeName);
 
-
-
+    @Select("SELECT exam_type_name as name, COUNT(*) as value " +
+            "FROM exam_record " +
+            "GROUP BY exam_type_name")
+    List<Map<String, Object>> getExamTypeCount();
 
 }

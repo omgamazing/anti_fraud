@@ -11,6 +11,7 @@
             <if test="userId != null"> and comment.user_id = #{userId}</if>
             <if test="articleId != null"> and comment.article_id = #{articleId}</if>
             <if test="articleTitle != null"> and article.title like concat('%', #{articleTitle}, '%')</if>
+            <if test="content != null"> and comment.content like concat('%', #{content}, '%')</if>
         </where>
         order by id desc
     </select>

@@ -48,5 +48,11 @@ public interface SimulationRecordMapper {
     })
     SimulationRecord findById(@Param("id") Integer id);
 
+    @Select("SELECT COUNT(*) FROM simulation_records")
+    int countAll();
+
+    @Select("SELECT COUNT(*) FROM simulation_records WHERE DATE(create_time) = #{date}")
+    int countByDate(@Param("date") String date);
+
 
 }

@@ -31,12 +31,6 @@ public class JWTInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        /*// 获取请求的URI
-        String uri = request.getRequestURI();
-        // 放行登录接口和AI聊天接口
-        if (uri.contains("/api/ai") ) {
-            return true;  // 直接放行，不验证token
-        }*/
 
         // 1. 从http请求标头里面拿到token
         String token = request.getHeader(Constants.TOKEN);

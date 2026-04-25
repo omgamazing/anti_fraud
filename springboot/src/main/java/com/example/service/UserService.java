@@ -63,9 +63,10 @@ public class UserService {
         return userMapper.selectAll(user);
     }
 
-    public PageInfo<User> selectPage(User user, Integer pageNum, Integer pageSize) {
+
+    public PageInfo<User> selectPage(Integer pageNum, Integer pageSize, String keyword) {
         PageHelper.startPage(pageNum, pageSize);
-        List<User> list = userMapper.selectAll(user);
+        List<User> list = userMapper.selectPage(keyword);  // 直接传 keyword
         return PageInfo.of(list);
     }
 

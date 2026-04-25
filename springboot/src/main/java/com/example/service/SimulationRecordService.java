@@ -45,12 +45,6 @@ public class SimulationRecordService {
         double successRate = totalCount > 0 ?
                 Math.round((successCount * 100.0 / totalCount) * 100) / 100.0 : 0;
 
-        /*return Map.of(
-                "totalCount", totalCount,
-                "successCount", successCount,
-                "failCount", failCount,
-                "successRate", successRate
-        );*/
 
         result.put("totalCount", totalCount);
         result.put("successCount", successCount);
@@ -63,5 +57,15 @@ public class SimulationRecordService {
         PageHelper.startPage(pageNum, pageSize);
         List<SimulationRecord> list = recordMapper.findByUserIdAndScene(userId,scene);
         return PageInfo.of(list);
+    }
+
+    // 统计总模拟次数
+    public int countAll() {
+        return recordMapper.countAll();
+    }
+
+    // 按日期统计模拟次数
+    public int countByDate(String date) {
+        return recordMapper.countByDate(date);
     }
 }

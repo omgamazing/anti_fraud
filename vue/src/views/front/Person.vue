@@ -13,11 +13,11 @@
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
         </div>
-        <el-form-item prop="username" label="用户名">
-          <el-input disabled v-model="data.user.username" placeholder="请输入用户名"></el-input>
+        <el-form-item prop="username" label="账号">
+          <el-input disabled v-model="data.user.username" placeholder="请输入账号"></el-input>
         </el-form-item>
-        <el-form-item prop="name" label="姓名">
-          <el-input v-model="data.user.name" placeholder="请输入姓名"></el-input>
+        <el-form-item prop="name" label="昵称">
+          <el-input v-model="data.user.name" placeholder="请输入昵称"></el-input>
         </el-form-item>
         <el-form-item prop="phone" label="电话">
           <el-input v-model="data.user.phone" placeholder="请输入电话"></el-input>

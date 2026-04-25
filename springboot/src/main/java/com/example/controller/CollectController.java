@@ -20,12 +20,39 @@ public class CollectController {
     private CollectService collectService;
 
     /**
-     * 新增
+     * 新增收藏
      */
     @PostMapping("/add")
     public Result add(@RequestBody Collect collect) {
         collectService.add(collect);
         return Result.success();
+    }
+
+    /**
+     * 取消收藏（根据 userId 和 caseId）
+     */
+    @DeleteMapping("/cancel")
+    public Result cancel(@RequestParam Integer userId, @RequestParam Integer caseId) {
+        collectService.cancel(userId, caseId);
+        return Result.success();
+    }
+
+    /**
+     * 切换收藏状态
+     */
+    @PostMapping("/toggle")
+    public Result toggle(@RequestBody Collect collect) {
+        collectService.toggle(collect);
+        return Result.success();
+    }
+
+    /**
+     * 检查是否已收藏
+     */
+    @GetMapping("/isCollected")
+    public Result isCollected(@RequestParam Integer userId, @RequestParam Integer caseId) {
+        boolean collected = collectService.isCollected(userId, caseId);
+        return Result.success(collected);
     }
 
     /**
@@ -83,5 +110,4 @@ public class CollectController {
         PageInfo<Collect> pageInfo = collectService.selectPage(collect, pageNum, pageSize);
         return Result.success(pageInfo);
     }
-
 }

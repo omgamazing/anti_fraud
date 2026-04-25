@@ -1,6 +1,5 @@
 <template>
   <div>
-<!--    <div class="front-notice"><el-icon><Bell /></el-icon>公告：{{ data.top }}</div>-->
     <div class="front-header">
       <div class="front-header-left">
         <img src="@/assets/imgs/logo.png" alt="">
@@ -13,10 +12,6 @@
           <el-menu-item index="/front/article">反诈论坛</el-menu-item>
           <el-menu-item index="/front/aichat">AI模拟</el-menu-item>
           <el-menu-item index="/front/examSelect">知识考核</el-menu-item>
-          <!--
-
-          <el-menu-item index="/front/notice">系统公告</el-menu-item>
-          -->
         </el-menu>
       </div>
       <div class="front-header-right">
@@ -34,9 +29,7 @@
               <el-dropdown-menu>
                 <el-dropdown-item @click="router.push('/front/myArticle')">我的帖子</el-dropdown-item>
                 <el-dropdown-item @click="router.push('/front/myCollect')">我的收藏</el-dropdown-item>
-
                 <el-dropdown-item @click="router.push('/front/myComment')">我的评论</el-dropdown-item>
-
                 <el-dropdown-item @click="router.push('/front/mySimulation')">模拟记录</el-dropdown-item>
                 <el-dropdown-item @click="router.push('/front/examRecord')">考试记录</el-dropdown-item>
                 <el-dropdown-item @click="router.push('/front/person')">个人资料</el-dropdown-item>
@@ -61,8 +54,6 @@
 
   const data = reactive({
     user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
-    top: '',
-    noticeData: []
   })
 
   const logout = () => {
@@ -74,23 +65,6 @@
     data.user =  JSON.parse(localStorage.getItem('xm-user') || '{}')
   }
 
-  const loadNotice = () => {
-    request.get('/notice/selectAll').then(res => {
-      data.noticeData = res.data
-      let i = 0
-      if (data.noticeData && data.noticeData.length) {
-        data.top = data.noticeData[0].content
-        setInterval(() => {
-          data.top = data.noticeData[i].content
-          i++
-          if (i === data.noticeData.length) {
-            i = 0
-          }
-        }, 2500)
-      }
-    })
-  }
-  loadNotice()
 </script>
 
 <style scoped>

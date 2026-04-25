@@ -1,6 +1,8 @@
 package com.example.mapper;
 
 import com.example.entity.Admin;
+import com.example.entity.User;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -20,5 +22,7 @@ public interface AdminMapper {
     Admin selectByUsername(String username);
 
     List<Admin> selectAll(Admin admin);
+
+    List<User> selectPage(@Param("keyword") String keyword);
 
 }

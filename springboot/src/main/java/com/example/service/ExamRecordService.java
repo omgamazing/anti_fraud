@@ -80,4 +80,9 @@ public class ExamRecordService {
         return PageInfo.of(list);
     }
 
+    // 统计各考试类型次数
+    public List<Map<String, Object>> getExamTypeCount() {
+        return examRecordMapper.getExamTypeCount();
+    }
+
 }

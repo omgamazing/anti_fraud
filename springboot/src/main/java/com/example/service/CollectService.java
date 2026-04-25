@@ -1,11 +1,9 @@
 package com.example.service;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjUtil;
-import com.example.entity.Article;
+import com.example.entity.Case;
 import com.example.entity.Collect;
-import com.example.mapper.ArticleMapper;
+import com.example.mapper.CaseMapper;
 import com.example.mapper.CollectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -23,16 +21,38 @@ public class CollectService {
     @Resource
     private CollectMapper collectMapper;
     @Resource
-    private ArticleMapper articleMapper;
+    private CaseMapper caseMapper;
 
+    /**
+     * 添加收藏（如果已存在则不操作）
+     */
     public void add(Collect collect) {
-        List<Collect> collects = collectMapper.selectAll(collect);
-        if (CollectionUtil.isEmpty(collects)) {
-            // 空的说明没有收藏记录
+        // 检查是否已收藏
+        Collect existing = collectMapper.selectByUserIdAndCaseId(collect.getUserId(), collect.getCaseId());
+        if (existing == null) {
             collectMapper.insert(collect);
+        }
+    }
+
+    /**
+     * 取消收藏（根据 userId 和 caseId）
+     */
+    public void cancel(Integer userId, Integer caseId) {
+        Collect existing = collectMapper.selectByUserIdAndCaseId(userId, caseId);
+        if (existing != null) {
+            collectMapper.deleteById(existing.getId());
+        }
+    }
+
+    /**
+     * 切换收藏状态（有则删，无则加）
+     */
+    public void toggle(Collect collect) {
+        Collect existing = collectMapper.selectByUserIdAndCaseId(collect.getUserId(), collect.getCaseId());
+        if (existing != null) {
+            collectMapper.deleteById(existing.getId());
         } else {
-            // 不是空的说明收藏过（而且只有一条数据），那么我们把这条收藏记录删掉即可
-            collectMapper.deleteById(collects.get(0).getId());
+            collectMapper.insert(collect);
         }
     }
 
@@ -54,20 +74,37 @@ public class CollectService {
         return collectMapper.selectById(id);
     }
 
+    /**
+     * 查询所有（支持动态条件）
+     */
     public List<Collect> selectAll(Collect collect) {
         return collectMapper.selectAll(collect);
     }
 
+    /**
+     * 分页查询（联表解决 N+1 问题）
+     */
     public PageInfo<Collect> selectPage(Collect collect, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         List<Collect> list = collectMapper.selectAll(collect);
-        for (Collect dbCollect : list) {
-            Article article = articleMapper.selectById(dbCollect.getArticleId());
-            if (ObjUtil.isNotEmpty(article)) {
-                dbCollect.setArticle(article);
+
+        // 批量查询 Case，解决 N+1 问题
+        if (list != null && !list.isEmpty()) {
+            for (Collect dbCollect : list) {
+                Case aCase = caseMapper.selectById(dbCollect.getCaseId());
+                if (ObjUtil.isNotEmpty(aCase)) {
+                    dbCollect.setCaseObj(aCase);
+                }
             }
         }
         return PageInfo.of(list);
     }
 
+    /**
+     * 检查是否已收藏
+     */
+    public boolean isCollected(Integer userId, Integer caseId) {
+        Collect existing = collectMapper.selectByUserIdAndCaseId(userId, caseId);
+        return existing != null;
+    }
 }

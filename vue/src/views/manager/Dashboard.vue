@@ -1,64 +1,81 @@
 <template>
   <div>
+    <!-- 统计卡片（4个） -->
     <div style="display: flex; grid-gap: 10px">
+      <!-- 1. 用户帖子总数 -->
       <div style="flex: 1; display: flex; padding: 20px 0; align-items: center" class="card">
         <div style="flex: 1; text-align: center">
-          <img src="@/assets/imgs/帖子.png" alt="" style="width: 80px; height: 80px">
+          <el-icon size="60" color="#409eff"><Document /></el-icon>
         </div>
         <div style="flex: 1">
           <div style="font-size: 20px; margin-bottom: 10px">用户帖子总数</div>
-          <div style="font-size: 20px; font-weight: bold">{{ data.baseData.article }}</div>
+          <div style="font-size: 20px; font-weight: bold">{{ data.baseData.article || 0 }}</div>
         </div>
       </div>
+
+      <!-- 2. 反诈百科数量 -->
       <div style="flex: 1; display: flex; padding: 20px 0; align-items: center" class="card">
         <div style="flex: 1; text-align: center">
-          <img src="@/assets/imgs/新闻.png" alt="" style="width: 80px; height: 80px">
+          <el-icon size="60" color="#67c23a"><Reading /></el-icon>
         </div>
         <div style="flex: 1">
-          <div style="font-size: 20px; margin-bottom: 10px">反诈宣传数量</div>
-          <div style="font-size: 20px; font-weight: bold">{{ data.baseData.news }}</div>
+          <div style="font-size: 20px; margin-bottom: 10px">反诈百科数量</div>
+          <div style="font-size: 20px; font-weight: bold">{{ data.baseData.case || 0 }}</div>
         </div>
       </div>
+
+      <!-- 3. AI模拟次数 -->
       <div style="flex: 1; display: flex; padding: 20px 0; align-items: center" class="card">
         <div style="flex: 1; text-align: center">
-          <img src="@/assets/imgs/活动.png" alt="" style="width: 80px; height: 80px">
+          <el-icon size="60" color="#e6a23c"><ChatDotRound /></el-icon>
         </div>
         <div style="flex: 1">
-          <div style="font-size: 20px; margin-bottom: 10px">反诈活动总数</div>
-          <div style="font-size: 20px; font-weight: bold">{{ data.baseData.activity }}</div>
+          <div style="font-size: 20px; margin-bottom: 10px">AI模拟次数</div>
+          <div style="font-size: 20px; font-weight: bold">{{ data.baseData.simulation || 0 }}</div>
         </div>
       </div>
+
+      <!-- 4. 平台用户总数 -->
       <div style="flex: 1; display: flex; padding: 20px 0; align-items: center" class="card">
         <div style="flex: 1; text-align: center">
-          <img src="@/assets/imgs/用户.png" alt="" style="width: 80px; height: 80px">
+          <el-icon size="60" color="#f56c6c"><User /></el-icon>
         </div>
         <div style="flex: 1">
           <div style="font-size: 20px; margin-bottom: 10px">平台用户总数</div>
-          <div style="font-size: 20px; font-weight: bold">{{ data.baseData.user }}</div>
+          <div style="font-size: 20px; font-weight: bold">{{ data.baseData.user || 0 }}</div>
         </div>
       </div>
     </div>
-    <div class="card" style="margin-top: 10px; height: 500px" id="line"></div>
+
+    <!-- AI模拟趋势图（折线图） -->
+    <div class="card" style="margin-top: 10px; height: 440px" id="line"></div>
+
+    <!-- 饼图：帖子分类占比 + 考试分类占比 -->
     <div style="margin-top: 10px; display: flex; grid-gap: 10px">
-      <div style="flex: 1; height: 400px" class="card" id="pie1"></div>
-      <div style="flex: 1; height: 400px" class="card" id="pie2"></div>
+      <div style="flex: 1; height: 380px" class="card" id="pie1"></div>
+      <div style="flex: 1; height: 380px" class="card" id="pie2"></div>
     </div>
   </div>
 </template>
 
 <script setup>
-
-import {reactive, onMounted} from "vue";
+import { reactive, onMounted } from "vue";
 import request from "@/utils/request.js";
-import {ElMessage, ElMessageBox} from "element-plus";
-import {Delete, Edit} from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
 import * as echarts from "echarts";
+import { Document, Reading, ChatDotRound, User } from "@element-plus/icons-vue";
 
-
+// 统计数据
 const data = reactive({
-  baseData: {},
+  baseData: {
+    article: 0,
+    case: 0,
+    simulation: 0,
+    user: 0
+  }
 })
 
+// 加载统计数据
 const loadBase = () => {
   request.get('/dashboard/base').then(res => {
     if (res.code === '200') {
@@ -70,8 +87,9 @@ const loadBase = () => {
 }
 loadBase()
 
+// AI模拟趋势图
 const loadLineData = () => {
-  request.get('/dashboard/line').then(res => {
+  request.get('/dashboard/simulationTrend').then(res => {
     if (res.code === '200') {
       let chartDom = document.getElementById('line')
       let myChart = echarts.init(chartDom)
@@ -84,8 +102,9 @@ const loadLineData = () => {
   })
 }
 
+// 帖子分类占比（饼图1）
 const loadPie1Data = () => {
-  request.get('/dashboard/pie1').then(res => {
+  request.get('/dashboard/articleCategory').then(res => {
     if (res.code === '200') {
       let chartDom = document.getElementById('pie1')
       let myChart = echarts.init(chartDom)
@@ -97,8 +116,9 @@ const loadPie1Data = () => {
   })
 }
 
+// 考试分类占比（饼图2）
 const loadPie2Data = () => {
-  request.get('/dashboard/pie2').then(res => {
+  request.get('/dashboard/examCategory').then(res => {
     if (res.code === '200') {
       let chartDom = document.getElementById('pie2')
       let myChart = echarts.init(chartDom)
@@ -109,122 +129,95 @@ const loadPie2Data = () => {
     }
   })
 }
+
 onMounted(() => {
   loadLineData()
   loadPie1Data()
   loadPie2Data()
 })
 
+// ==================== 图表配置 ====================
 
-// 平滑折线图
+// AI模拟趋势图配置
 let lineOptions = {
   title: {
-    text: '最近一周平台用户反诈举报趋势图',
-    subtext: '统计维度：最近一周',
+    text: 'AI模拟演练趋势图',
+    subtext: '统计维度：最近一个月',
     left: 'center'
   },
-  legend: {
-    data: [],
-    template:""
-  },
-  grid: {
-    left: '3%',
-    right: '4%',
-    bottom: '3%',
-    top: '20%',
-    containLabel: true
-  },
   tooltip: {
-    trigger: 'item'
+    trigger: 'axis'
   },
   xAxis: {
     name: '日期',
     type: 'category',
-    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    data: []
   },
   yAxis: {
-    name: '举报数量',
+    name: '模拟次数',
     type: 'value'
   },
   series: [
     {
-      name: '举报数量',
-      data: [820, 932, 901, 934, 1290, 1330, 1320],
+      name: 'AI模拟次数',
+      data: [],
       type: 'line',
-      smooth: true,
-      markLine: {
-        data: [{ type: 'average', name: '系统中近7天反诈举报数量平均值' }]
-      },
-      markPoint: {
-        data: [
-          { type: 'max', name: '最大值' },
-          { type: 'min', name: '最小值' }
-        ]
-      },
-    },
+      smooth: true
+    }
   ]
 }
 
-// 饼图
+// 饼图1配置（帖子分类）
 let pieOptions1 = {
   title: {
-    text: '不同分类下用户分享帖子数量占比', // 主标题
-    subtext: '统计维度：反诈分类', // 副标题
+    text: '帖子分类占比',
+    subtext: '统计维度：反诈分类',
     left: 'center'
   },
   tooltip: {
     trigger: 'item',
-    formatter: '{a} <br/>{b} : {c} ({d}%)'
+    formatter: '{b} : {c} ({d}%)'
   },
   legend: {
     orient: 'vertical',
     left: 'left'
   },
+  color: ['#8b9dc3', '#b3cde0', '#e7e8c8', '#f0a78c', '#bc9a6c', '#99b898', '#c7b7a3'],
   series: [
     {
-      name: '数量占比', // 鼠标移上去显示内容
+      name: '帖子数量',
       type: 'pie',
       radius: '50%',
-      center: ['50%', '60%'],
-      data: [
-        {value: 1, name: '轻微'}, // 示例数据：name表示维度，value表示对应的值
-        {value: 735, name: '雀巢咖啡'},
-        {value: 580, name: '星巴克咖啡'},
-        {value: 484, name: '栖巢咖啡'},
-        {value: 300, name: '小武哥咖啡'}
-      ]
-    }
-  ]
-}
-let pieOptions2 = {
-  title: {
-    text: '不同分类下反诈活动数量占比', // 主标题
-    subtext: '统计维度：反诈分类', // 副标题
-    left: 'center'
-  },
-  tooltip: {
-    trigger: 'item',
-    formatter: '{a} <br/>{b} : {c} ({d}%)'
-  },
-  legend: {
-    orient: 'vertical',
-    left: 'left'
-  },
-  series: [
-    {
-      name: '数量占比', // 鼠标移上去显示内容
-      type: 'pie',
-      radius: '50%',
-      center: ['50%', '60%'],
-      data: [
-        {value: 1, name: '轻微'}, // 示例数据：name表示维度，value表示对应的值
-        {value: 735, name: '雀巢咖啡'},
-        {value: 580, name: '星巴克咖啡'},
-        {value: 484, name: '栖巢咖啡'},
-        {value: 300, name: '小武哥咖啡'}
-      ]
+      center: ['50%', '50%'],
+      data: []
     }
   ]
 }
 
+// 饼图2配置（考试分类）
+let pieOptions2 = {
+  title: {
+    text: '考试分类占比',
+    subtext: '统计维度：考试类型',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b} : {c} ({d}%)'
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'left'
+  },
+  color: ['#6a8daf', '#b0c3d0', '#c9c7aa', '#e5ae94', '#b39274', '#95ae86', '#c5a59b'],
+  series: [
+    {
+      name: '考试次数',
+      type: 'pie',
+      radius: '50%',
+      center: ['50%', '50%'],
+      data: []
+    }
+  ]
+}
 </script>

@@ -1,9 +1,9 @@
 <template >
   <div class="card" style="margin-bottom: 5px">
     <div class="search-bar">
-      <el-input v-model="data.name"
+      <el-input v-model="data.keyword"
       prefix-icon="Search" style="width: 240px; margin-right: 10px"
-      placeholder="请输入名称查询"
+      placeholder="请输入账号/昵称"
       clearable
       @clear="load"
       @keyup.enter="load"
@@ -24,11 +24,11 @@
         <el-table-column prop="username" label="账号" />
         <el-table-column prop="avatar" label="头像" width="100">
           <template v-slot="scope">
-            <el-image style="width: 40px; height: 40px; border-radius: 50%; display: block" v-if="scope.row.avatar"
+            <el-image style="width: 40px; height: 40px; border-radius: 50%; display: block; cursor: pointer" v-if="scope.row.avatar"
                       :src="scope.row.avatar" :preview-src-list="[scope.row.avatar]" preview-teleported></el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="姓名" align="center"/>
+        <el-table-column prop="name" label="昵称" align="center" show-overflow-tooltip />
         <el-table-column prop="role" label="角色" align="center"/>
         <el-table-column prop="phone" label="电话" align="center"/>
         <el-table-column prop="email" label="邮箱" align="center"/>
@@ -53,22 +53,30 @@
         />
     </div>
 
+    <!-- 新增/编辑弹窗 -->
     <el-dialog title="用户信息" v-model="data.formVisible" width="40%" destroy-on-close>
       <el-form ref="form" :model="data.form" label-width="70px" style="padding: 20px">
-        <el-form-item prop="username" label="用户名" required>
-          <el-input v-model="data.form.username" placeholder="请输入用户名"></el-input>
+        <el-form-item prop="username" label="账号" required>
+          <el-input v-model="data.form.username" placeholder="请输入账号"></el-input>
         </el-form-item>
-        <el-form-item prop="avatar" label="头像" required>
+
+        <!-- 头像上传组件 -->
+        <el-form-item prop="avatar" label="头像">
           <el-upload
-              :action="baseUrl + '/files/upload'"
-              :on-success="handleFileUpload"
-              list-type="picture"
-              >
-            <el-button type="primary">点击上传</el-button>
+            :action="baseUrl + '/files/upload'"
+            :on-success="handleImgUpload"
+            :on-remove="handleRemove"
+            :file-list="data.fileList"
+            list-type="picture"
+          >
+            <el-button type="primary">
+              {{ data.form.avatar ? '重新上传' : '点击上传' }}
+            </el-button>
           </el-upload>
         </el-form-item>
-        <el-form-item prop="name" label="姓名" >
-          <el-input v-model="data.form.name" placeholder="请输入姓名"></el-input>
+
+        <el-form-item prop="name" label="昵称" >
+          <el-input v-model="data.form.name" placeholder="请输入昵称"></el-input>
         </el-form-item>
         <el-form-item prop="phone" label="电话">
           <el-input v-model="data.form.phone" placeholder="请输入电话"></el-input>
@@ -89,11 +97,12 @@
 
 <script setup>
 
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import request from "@/utils/request.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {Delete, Edit} from "@element-plus/icons-vue";
 
+const formRef = ref();
 const baseUrl = import.meta.env.VITE_BASE_URL
 
 const data = reactive({
@@ -103,8 +112,9 @@ const data = reactive({
   pageNum: 1,
   pageSize: 10,
   total: 0,
-  name: null,
-  ids: []
+  keyword: null,  // 搜索关键词（同时搜账号和昵称）
+  ids: [],
+  fileList: [],  // 添加文件列表
 })
 
 const load = () => {
@@ -112,7 +122,8 @@ const load = () => {
     params: {
       pageNum: data.pageNum,
       pageSize: data.pageSize,
-      name: data.name
+      keyword: data.keyword,
+
     }
   }).then(res => {
     if (res.code === '200') {
@@ -121,14 +132,26 @@ const load = () => {
     }
   })
 }
+
+// 新增
 const handleAdd = () => {
   data.form = {}
+  data.fileList = []  //清空文件列表
   data.formVisible = true
 }
+
+// 编辑
 const handleEdit = (row) => {
   data.form = JSON.parse(JSON.stringify(row))
+  // 设置文件列表显示原有头像
+  if (row.avatar) {
+    data.fileList = [{ url: row.avatar }]
+  } else {
+    data.fileList = []
+  }
   data.formVisible = true
 }
+
 const add = () => {
   request.post('/user/add', data.form).then(res => {
     if (res.code === '200') {
@@ -169,6 +192,7 @@ const del = (id) => {
     console.error(err)
   })
 }
+
 const delBatch = () => {
   if (!data.ids.length) {
     ElMessage.warning("请选择数据")
@@ -187,21 +211,31 @@ const delBatch = () => {
     console.error(err)
   })
 }
+
 const handleSelectionChange = (rows) => {
   data.ids = rows.map(v => v.id)
 }
 
-const handleFileUpload = (res) => {
+// 图片上传成功
+const handleImgUpload = (res) => {
   data.form.avatar = res.data
+  data.fileList = [{ url: res.data }]  // 更新文件列表
+}
+
+// 删除图片
+const handleRemove = () => {
+  data.form.avatar = null
+  data.fileList = []
 }
 
 const reset = () => {
-  data.name = null
+  data.keyword = null
   load()
 }
 
 load()
 </script>
+
 <style scoped>
 .card {
   background: white;
@@ -210,7 +244,7 @@ load()
 }
 .search-bar {
   background: white;
-  padding: 10px 10px 15px 0px;  /* 上 右 下 左 */
+  padding: 10px 10px 15px 0px;
   margin-bottom: 5px;
   border-radius: 8px;
   display: flex;

@@ -57,13 +57,13 @@
                         </el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="100" align="center">
+                <el-table-column label="详情" width="100" align="center">
                     <template #default="{row}">
-                        <el-button type="primary" size="small" @click="showDetail(row)">详情</el-button>
+                        <el-button type="primary" size="small" @click="showDetail(row)">查看</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <div v-if="data.total" style="margin-top: 20px">
+            <div v-if="data.total" style="margin-top: 20px;display: flex; justify-content: flex-end ">
                 <el-pagination
                     @current-change="load"
                     layout="total, prev, pager, next"

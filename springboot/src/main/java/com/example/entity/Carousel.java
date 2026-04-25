@@ -3,9 +3,9 @@ package com.example.entity;
 public class Carousel {
     private Integer id;
     private String img;
-    private Integer articleId;
-
-    private String articleTitle;
+    private Integer targetId;      // 目标ID（帖子ID或案例ID）
+    private String targetType;     // 目标类型：article/case
+    private String targetTitle; // 额外字段，不存数据库，用于显示
 
     public Integer getId() {
         return id;
@@ -23,19 +23,29 @@ public class Carousel {
         this.img = img;
     }
 
-    public Integer getArticleId() {
-        return articleId;
+    public Integer getTargetId() {
+        return targetId;
     }
 
-    public void setArticleId(Integer articleId) {
-        this.articleId = articleId;
+    public void setTargetId(Integer targetId) {
+        this.targetId = targetId;
     }
 
-    public String getArticleTitle() {
-        return articleTitle;
+    public String getTargetType() {
+        return targetType;
     }
 
-    public void setArticleTitle(String articleTitle) {
-        this.articleTitle = articleTitle;
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
     }
+
+    public String getTargetTitle() {
+        return targetTitle;
+    }
+
+    public void setTargetTitle(String targetTitle) {
+        this.targetTitle = targetTitle;
+    }
+
+
 }

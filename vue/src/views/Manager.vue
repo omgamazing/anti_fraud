@@ -5,12 +5,7 @@
         <img src="@/assets/imgs/logo.png" alt="">
         <div class="title">网络安全反诈模拟系统</div>
       </div>
-      <div class="manager-header-center">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ path: '/manager/home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>{{ router.currentRoute.value.meta.name }}</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
+
       <div class="manager-header-right">
         <el-dropdown style="cursor: pointer">
           <div style="padding-right: 20px; display: flex; align-items: center">
@@ -34,13 +29,9 @@
                  :default-openeds="['1', '2']"
                  router
         >
-          <el-menu-item index="/manager/home">
+          <el-menu-item index="/manager/dashboard">
             <el-icon><HomeFilled /></el-icon>
             <span>系统首页</span>
-          </el-menu-item>
-          <el-menu-item index="/manager/dashboard">
-            <el-icon><Monitor /></el-icon>
-            <span>数据统计</span>
           </el-menu-item>
           <el-sub-menu index="1">
             <template #title>
@@ -49,9 +40,9 @@
             </template>
             <el-menu-item index="/manager/carousel">轮播图管理</el-menu-item>
             <el-menu-item index="/manager/category">反诈分类</el-menu-item>
+            <el-menu-item index="/manager/case">案例管理</el-menu-item>
             <el-menu-item index="/manager/article">帖子管理</el-menu-item>
             <el-menu-item index="/manager/exam">考题管理</el-menu-item>
-            <el-menu-item index="/manager/case">案例管理</el-menu-item>
             <el-menu-item index="/manager/comment">评论管理</el-menu-item>
           </el-sub-menu>
           <el-sub-menu index="2">
