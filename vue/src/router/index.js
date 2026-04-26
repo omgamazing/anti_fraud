@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', redirect: '/manager/home' },
+    { path: '/', redirect: '/login' },
     {
       path: '/manager',//父路径：管理员后台根路径
       component: () => import('@/views/Manager.vue'),
