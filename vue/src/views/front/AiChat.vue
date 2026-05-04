@@ -272,7 +272,6 @@ const startSimulation = () => {
          addAiMessage(res.data.aiReply)
          await scrollAndWait()
 
-         //data.records = res.data
        }else {
          ElMessage.error(res.msg)
        }
